@@ -1,0 +1,23 @@
+{
+  "name": "edge-language-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "out/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node out/server.js",
+    "dev": "ts-node src/server.ts"
+  },
+  "keywords": [],
+  "author": "Abdelmadjid Cherfaoui",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "tree-sitter": "^0.25.0",
+    "vscode-css-languageservice": "^6.3.7",
+    "vscode-html-languageservice": "^5.5.1",
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-textdocument": "^1.0.12",
+    "tree-sitter-edge": "file:./tree-sitter-edge"
+  }
+}
