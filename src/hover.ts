@@ -3,19 +3,19 @@ import { Hover, MarkupKind, Position } from 'vscode-languageserver/node';
 import { EdgeParser } from './parser';
 
 export class EdgeHoverProvider {
-  private parser = new EdgeParser();
+  constructor(private edgeParser: EdgeParser) {}
 
   provideHover(document: TextDocument, position: Position): Hover | null {
     const text = document.getText();
-    const tree = this.parser.parse(text);
-    const node = this.parser.getNodeAtPosition(tree, position.line, position.character);
+    const tree: any = this.edgeParser.parse(text);
+    const node: any = this.edgeParser.getNodeAtPosition(tree, position.line, position.character);
 
     if (!node) return null;
 
     return this.getHoverForNode(node, document);
   }
 
-  private getHoverForNode(node: Parser.SyntaxNode, document: TextDocument): Hover | null {
+  private getHoverForNode(node: any, document: TextDocument): Hover | null {
     const range = {
       start: document.positionAt(node.startIndex),
       end: document.positionAt(node.endIndex),
@@ -89,7 +89,7 @@ Includes content from another template file.
 
 Outputs the value of an expression. HTML is escaped by default.
 
-Use \`{{{ }}}\` for unescaped output.
+Use {{{{ }}}} for unescaped output.
 `,
           },
           range,

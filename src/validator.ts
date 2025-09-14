@@ -1,15 +1,14 @@
-import Parser from 'tree-sitter';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver/node';
 
 export class EdgeValidator {
-  validate(tree: Parser.Tree, document: TextDocument): Diagnostic[] {
+  validate(tree: any, document: TextDocument): Diagnostic[] {
     const diagnostics: Diagnostic[] = [];
-    const blockStack: Array<{ type: string; node: Parser.SyntaxNode }> = [];
+    const blockStack: Array<{ type: string; node: any }> = [];
 
     this.walkTree(tree.rootNode, (node) => {
       // Check for syntax errors
-      if (node.hasError()) {
+      if (node.hasError) {
         diagnostics.push({
           severity: DiagnosticSeverity.Error,
           range: {
@@ -77,17 +76,22 @@ export class EdgeValidator {
     return diagnostics;
   }
 
-  private walkTree(node: Parser.SyntaxNode, callback: (node: Parser.SyntaxNode) => void) {
+  private walkTree(node: any, callback: (node: any) => void) {
     callback(node);
     for (let i = 0; i < node.childCount; i++) {
-      this.walkTree(node.child(i)!, callback);
+      const child = node.child(i);
+      if (child) {
+        this.walkTree(child, callback);
+      }
     }
   }
 
-  private validateIfDirective(node: Parser.SyntaxNode, document: TextDocument, diagnostics: Diagnostic[]) {
+  private validateIfDirective(node: any, document: TextDocument, diagnostics: Diagnostic[]) {
     // Additional validation for @if directives
-    const expressionNode = node.childForFieldName('condition');
-    if (!expressionNode) {
+    // Note: childForFieldName might not be available in web-tree-sitter
+    // We'll need to find the condition node differently
+    const conditionNode = node.children.find((child: any) => child.type === 'condition');
+    if (!conditionNode) {
       diagnostics.push({
         severity: DiagnosticSeverity.Error,
         range: {
@@ -100,7 +104,7 @@ export class EdgeValidator {
     }
   }
 
-  private validateEachDirective(node: Parser.SyntaxNode, document: TextDocument, diagnostics: Diagnostic[]) {
+  private validateEachDirective(node: any, document: TextDocument, diagnostics: Diagnostic[]) {
     // Validate @each syntax
     const text = node.text;
     if (!text.includes(' in ')) {
@@ -116,7 +120,7 @@ export class EdgeValidator {
     }
   }
 
-  private validateComponentDirective(node: Parser.SyntaxNode, document: TextDocument, diagnostics: Diagnostic[]) {
+  private validateComponentDirective(node: any, document: TextDocument, diagnostics: Diagnostic[]) {
     // Validate component name format
     const componentName = this.extractStringFromNode(node);
     if (componentName && !componentName.match(/^[a-zA-Z][a-zA-Z0-9._-]*$/)) {
@@ -132,10 +136,12 @@ export class EdgeValidator {
     }
   }
 
-  private validateInterpolation(node: Parser.SyntaxNode, document: TextDocument, diagnostics: Diagnostic[]) {
+  private validateInterpolation(node: any, document: TextDocument, diagnostics: Diagnostic[]) {
     // Check for empty interpolations
-    const expression = node.childForFieldName('expression');
-    if (!expression || expression.text.trim().length === 0) {
+    // Note: childForFieldName might not be available in web-tree-sitter
+    // We'll need to find the expression node differently
+    const expressionNode = node.children.find((child: any) => child.type === 'expression');
+    if (!expressionNode || expressionNode.text.trim().length === 0) {
       diagnostics.push({
         severity: DiagnosticSeverity.Warning,
         range: {
@@ -148,7 +154,7 @@ export class EdgeValidator {
     }
   }
 
-  private validateInclude(node: Parser.SyntaxNode, document: TextDocument, diagnostics: Diagnostic[]) {
+  private validateInclude(node: any, document: TextDocument, diagnostics: Diagnostic[]) {
     // Validate include path format
     const includePath = this.extractStringFromNode(node);
     if (includePath && includePath.includes('..')) {
@@ -164,10 +170,11 @@ export class EdgeValidator {
     }
   }
 
-  private extractStringFromNode(node: Parser.SyntaxNode): string | null {
-    const stringNode = node.descendantsOfType('string_literal')[0];
-    if (stringNode) {
-      return stringNode.text.slice(1, -1); // Remove quotes
+  private extractStringFromNode(node: any): string | null {
+    // Find string nodes in the children
+    const stringNodes = node.children.filter((child: any) => child.type === 'string');
+    if (stringNodes.length > 0) {
+      return stringNodes[0].text.slice(1, -1); // Remove quotes
     }
     return null;
   }

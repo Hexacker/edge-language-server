@@ -1,23 +1,44 @@
 {
   "name": "edge-language-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "A language server for the Edge templating engine.",
   "main": "out/server.js",
   "scripts": {
     "build": "tsc",
-    "start": "node out/server.js",
-    "dev": "ts-node src/server.ts"
+    "start": "node out/server.js --stdio",
+    "dev": "ts-node src/server.ts",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write src/**/*.ts",
+    "test": "jest"
   },
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "edge",
+    "adonisjs",
+    "language-server"
+  ],
   "author": "Abdelmadjid Cherfaoui",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "tree-sitter": "^0.25.0",
+    "tree-sitter": "^0.21.1",
     "vscode-css-languageservice": "^6.3.7",
     "vscode-html-languageservice": "^5.5.1",
     "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-textdocument": "^1.0.12",
-    "tree-sitter-edge": "file:./tree-sitter-edge"
+    "web-tree-sitter": "^0.25.9"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.56.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.3.2",
+    "ts-jest": "^29.1.5",
+    "typescript-eslint": "^7.13.0"
   }
 }

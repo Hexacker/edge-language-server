@@ -6,15 +6,14 @@ extern "C" {
 #endif
 
 #include "./alloc.h"
-#include "./ts_assert.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 #ifdef _MSC_VER
-#pragma warning(push)
 #pragma warning(disable : 4101)
 #elif defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
@@ -38,7 +37,7 @@ extern "C" {
 
 /// Get a pointer to the element at a given `index` in the array.
 #define array_get(self, _index) \
-  (ts_assert((uint32_t)(_index) < (self)->size), &(self)->contents[_index])
+  (assert((uint32_t)(_index) < (self)->size), &(self)->contents[_index])
 
 /// Get a pointer to the first element in the array.
 #define array_front(self) array_get(self, 0)
@@ -172,7 +171,7 @@ static inline void _array__delete(Array *self) {
 /// This is not what you're looking for, see `array_erase`.
 static inline void _array__erase(Array *self, size_t element_size,
                                 uint32_t index) {
-  ts_assert(index < self->size);
+  assert(index < self->size);
   char *contents = (char *)self->contents;
   memmove(contents + index * element_size, contents + (index + 1) * element_size,
           (self->size - index - 1) * element_size);
@@ -223,7 +222,7 @@ static inline void _array__splice(Array *self, size_t element_size,
   uint32_t new_size = self->size + new_count - old_count;
   uint32_t old_end = index + old_count;
   uint32_t new_end = index + new_count;
-  ts_assert(old_end <= self->size);
+  assert(old_end <= self->size);
 
   _array__reserve(self, element_size, new_size);
 
@@ -279,7 +278,7 @@ static inline void _array__splice(Array *self, size_t element_size,
 #define _compare_int(a, b) ((int)*(a) - (int)(b))
 
 #ifdef _MSC_VER
-#pragma warning(pop)
+#pragma warning(default : 4101)
 #elif defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif

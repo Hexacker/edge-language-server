@@ -1,49 +1,55 @@
-import Parser from 'tree-sitter';
+const Parser = require('web-tree-sitter');
+import path from 'path';
 
 export class EdgeParser {
-  private parser: Parser;
-  private language: any;
+  private parser: any;
 
-  constructor() {
-    this.parser = new Parser();
-    this.initializeLanguage();
+  private constructor(parser: any) {
+    this.parser = parser;
   }
 
-  private async initializeLanguage() {
-    try {
-      // Import your local tree-sitter-edge grammar
-      this.language = require('tree-sitter-edge');
-      this.parser.setLanguage(this.language);
-    } catch (error) {
-      console.error('Failed to load EdgeJS grammar:', error);
-      // Fallback: continue without specific language
-    }
+  public static async create(): Promise<EdgeParser> {
+    // Initialize the WebAssembly runtime
+    await Parser.Parser.init();
+    
+    // Load the language from the WASM file
+    const wasmPath = path.join(__dirname, '..', 'wasm', 'tree-sitter-edge.wasm');
+    const language = await Parser.Language.load(wasmPath);
+    
+    // Create parser and set language
+    const parser = new Parser.Parser();
+    parser.setLanguage(language);
+    
+    return new EdgeParser(parser);
   }
 
-  parse(text: string): Parser.Tree {
+  parse(text: string): any {
     return this.parser.parse(text);
   }
 
-  parseWithPrevious(text: string, previousTree?: Parser.Tree): Parser.Tree {
+  parseWithPrevious(text: string, previousTree?: any): any {
     return this.parser.parse(text, previousTree);
   }
 
   // Helper method to find node at position
-  getNodeAtPosition(tree: Parser.Tree, line: number, character: number): Parser.SyntaxNode | null {
+  getNodeAtPosition(tree: any, line: number, character: number): any {
     const point = { row: line, column: character };
     return tree.rootNode.descendantForPosition(point);
   }
 
   // Get all nodes of a specific type
-  getNodesOfType(tree: Parser.Tree, nodeType: string): Parser.SyntaxNode[] {
-    const nodes: Parser.SyntaxNode[] = [];
+  getNodesOfType(tree: any, nodeType: string): any[] {
+    const nodes: any[] = [];
 
-    function traverse(node: Parser.SyntaxNode) {
+    function traverse(node: any) {
       if (node.type === nodeType) {
         nodes.push(node);
       }
       for (let i = 0; i < node.childCount; i++) {
-        traverse(node.child(i)!);
+        const child = node.child(i);
+        if (child) {
+          traverse(child);
+        }
       }
     }
 

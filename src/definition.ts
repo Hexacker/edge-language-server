@@ -4,12 +4,12 @@ import { Definition, Location, Position } from 'vscode-languageserver/node';
 import { EdgeParser } from './parser';
 
 export class EdgeDefinitionProvider {
-  private parser = new EdgeParser();
+  constructor(private edgeParser: EdgeParser) {}
 
   provideDefinition(document: TextDocument, position: Position): Definition | null {
     const text = document.getText();
-    const tree = this.parser.parse(text);
-    const node = this.parser.getNodeAtPosition(tree, position.line, position.character);
+    const tree: any = this.edgeParser.parse(text);
+    const node: any = this.edgeParser.getNodeAtPosition(tree, position.line, position.character);
 
     if (!node) return null;
 
@@ -21,9 +21,9 @@ export class EdgeDefinitionProvider {
     return null;
   }
 
-  private resolveTemplateReference(node: Parser.SyntaxNode, document: TextDocument): Location | null {
+  private resolveTemplateReference(node: any, document: TextDocument): Location | null {
     // Extract the template path from the directive
-    const stringNodes = node.descendantsOfType('string_literal');
+    const stringNodes = node.children.filter((child: any) => child.type === 'string');
     if (stringNodes.length === 0) return null;
 
     const templatePath = stringNodes[0].text.slice(1, -1); // Remove quotes

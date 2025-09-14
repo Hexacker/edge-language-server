@@ -1,7 +1,10 @@
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { CompletionItem, CompletionItemKind, InsertTextFormat, Position } from 'vscode-languageserver/node';
+import { EdgeParser } from './parser';
 
 export class EdgeCompletionProvider {
+  constructor(private edgeParser: EdgeParser) {}
+
   private edgeDirectives = [
     {
       label: '@if',
@@ -71,61 +74,58 @@ export class EdgeCompletionProvider {
   ];
 
   provideCompletions(document: TextDocument, position: Position): CompletionItem[] {
-    const text = document.getText();
-    const offset = document.offsetAt(position);
-    const lineStart = document.offsetAt({ line: position.line, character: 0 });
-    const lineText = text.slice(lineStart, offset);
+    const tree: any = this.edgeParser.parse(document.getText());
+    const node: any = this.edgeParser.getNodeAtPosition(tree, position.line, position.character);
 
-    // Check context and provide appropriate completions
-    if (this.isInDirectiveContext(lineText)) {
+    if (!node) {
       return this.edgeDirectives;
     }
 
-    if (this.isInInterpolationContext(text, offset)) {
-      return this.getInterpolationCompletions(text, offset);
+    if (this.isInsideInterpolation(node)) {
+      return this.getInterpolationCompletions(node);
     }
 
-    if (this.isInStringContext(lineText)) {
-      return this.getPathCompletions();
+    if (this.isInsideDirective(node)) {
+        return this.edgeDirectives;
+    }
+    
+    if (this.isInsideString(node)) {
+        return this.getPathCompletions();
     }
 
-    return [];
+    return this.edgeDirectives;
   }
 
-  private isInDirectiveContext(lineText: string): boolean {
-    return /^\s*@\w*$/.test(lineText);
-  }
-
-  private isInInterpolationContext(text: string, offset: number): boolean {
-    const beforeCursor = text.slice(0, offset);
-    const afterCursor = text.slice(offset);
-
-    // Check if we're inside {{ }}
-    const lastOpenBrace = beforeCursor.lastIndexOf('{{');
-    const lastCloseBrace = beforeCursor.lastIndexOf('}}');
-    const nextCloseBrace = afterCursor.indexOf('}}');
-
-    return lastOpenBrace > lastCloseBrace && nextCloseBrace !== -1;
-  }
-
-  private isInStringContext(lineText: string): boolean {
-    const quotes = lineText.match(/['"`]/g);
-    return quotes && quotes.length % 2 === 1;
-  }
-
-  private getInterpolationCompletions(text: string, offset: number): CompletionItem[] {
-    const completions = [...this.commonHelpers];
-
-    // Add method completions based on context
-    const beforeCursor = text.slice(0, offset);
-    const currentExpression = this.extractCurrentExpression(beforeCursor);
-
-    if (currentExpression.includes('.')) {
-      // Provide method completions for known objects
-      return this.getMethodCompletions(currentExpression);
+  private isInsideInterpolation(node: any): boolean {
+    let currentNode: any = node;
+    while (currentNode) {
+      if (currentNode.type === 'mustache') {
+        return true;
+      }
+      currentNode = currentNode.parent;
     }
+    return false;
+  }
 
-    return completions;
+  private isInsideDirective(node: any): boolean {
+    let currentNode: any = node;
+    while (currentNode) {
+      if (currentNode.type === 'tag') {
+        return true;
+      }
+      currentNode = currentNode.parent;
+    }
+    return false;
+  }
+  
+  private isInsideString(node: any): boolean {
+    return node.type === 'string';
+  }
+
+  private getInterpolationCompletions(node: any): CompletionItem[] {
+    // For now, return common helpers.
+    // In the future, we can analyze the expression to provide more specific completions.
+    return this.commonHelpers;
   }
 
   private getPathCompletions(): CompletionItem[] {
@@ -136,36 +136,5 @@ export class EdgeCompletionProvider {
       { label: 'components/', kind: CompletionItemKind.Folder, detail: 'Component templates' },
       { label: 'partials/', kind: CompletionItemKind.Folder, detail: 'Partial templates' },
     ];
-  }
-
-  private extractCurrentExpression(text: string): string {
-    const match = text.match(/\{\{\s*([^}]*)$/);
-    return match ? match[1] : '';
-  }
-
-  private getMethodCompletions(expression: string): CompletionItem[] {
-    const parts = expression.split('.');
-    const lastPart = parts[parts.length - 1];
-
-    // Provide method completions based on object type
-    if (parts[0] === 'user') {
-      return [
-        { label: 'name', kind: CompletionItemKind.Property, detail: 'User name' },
-        { label: 'email', kind: CompletionItemKind.Property, detail: 'User email' },
-        { label: 'avatar', kind: CompletionItemKind.Property, detail: 'User avatar URL' },
-        { label: 'isActive()', kind: CompletionItemKind.Method, detail: 'Check if user is active' },
-      ];
-    }
-
-    if (parts[0] === 'request') {
-      return [
-        { label: 'url', kind: CompletionItemKind.Property, detail: 'Request URL' },
-        { label: 'method', kind: CompletionItemKind.Property, detail: 'HTTP method' },
-        { label: 'headers', kind: CompletionItemKind.Property, detail: 'Request headers' },
-        { label: 'input()', kind: CompletionItemKind.Method, detail: 'Get input value' },
-      ];
-    }
-
-    return [];
   }
 }
