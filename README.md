@@ -12,8 +12,10 @@ This is a language server for the [Edge](https://edge.adonisjs.com/) templating 
 ## Installation
 
 ```bash
-npm install
+npm install --ignore-scripts
 ```
+
+Note: The `--ignore-scripts` flag is required to prevent build errors with the tree-sitter-edge package.
 
 ## Usage
 
@@ -37,5 +39,5 @@ The language server will automatically use the published `tree-sitter-edge` npm 
 To use the published npm package, simply add it to your dependencies:
 
 ```bash
-npm install tree-sitter-edge
+npm install tree-sitter-edge --ignore-scripts
 ```
