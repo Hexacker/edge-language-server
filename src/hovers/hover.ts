@@ -1,6 +1,6 @@
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Hover, MarkupKind, Position } from 'vscode-languageserver/node';
-import { EdgeParser } from './parser';
+import { EdgeParser } from '../server/parser';
 
 export class EdgeHoverProvider {
   constructor(private edgeParser: EdgeParser) {}

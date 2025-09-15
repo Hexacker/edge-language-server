@@ -1,6 +1,6 @@
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { CompletionItem, CompletionItemKind, InsertTextFormat, Position } from 'vscode-languageserver/node';
-import { EdgeParser } from './parser';
+import { EdgeParser } from '../server/parser';
 
 export class EdgeCompletionProvider {
   constructor(private edgeParser: EdgeParser) {}

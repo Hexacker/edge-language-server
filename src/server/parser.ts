@@ -19,7 +19,7 @@ export class EdgeParser {
       language = await Language.load(wasmPath);
     } catch (error) {
       // Fallback to local WASM file if npm package is not available
-      const wasmPath = path.join(__dirname, '..', 'wasm', 'tree-sitter-edge.wasm');
+      const wasmPath = path.join(__dirname, '..', '..', 'wasm', 'tree-sitter-edge.wasm');
       language = await Language.load(wasmPath);
     }
     

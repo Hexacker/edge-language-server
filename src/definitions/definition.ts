@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Definition, Location, Position } from 'vscode-languageserver/node';
-import { EdgeParser } from './parser';
+import { EdgeParser } from '../server/parser';
 
 export class EdgeDefinitionProvider {
   constructor(private edgeParser: EdgeParser) {}
