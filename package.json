@@ -25,6 +25,7 @@
   "type": "commonjs",
   "dependencies": {
     "tree-sitter": "^0.21.1",
+    "tree-sitter-edge": "^0.1.0",
     "vscode-css-languageservice": "^6.3.7",
     "vscode-html-languageservice": "^5.5.1",
     "vscode-languageserver": "^9.0.1",

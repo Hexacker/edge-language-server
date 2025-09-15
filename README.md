@@ -27,3 +27,15 @@ npm run start
 ```bash
 npm run dev
 ```
+
+## Tree-sitter Parser
+
+This language server uses a tree-sitter parser for Edge templates. The parser is available as a separate npm package called `tree-sitter-edge`. 
+
+The language server will automatically use the published `tree-sitter-edge` npm package if it's available in your dependencies. If not, it will fall back to using a local WASM file.
+
+To use the published npm package, simply add it to your dependencies:
+
+```bash
+npm install tree-sitter-edge
+```

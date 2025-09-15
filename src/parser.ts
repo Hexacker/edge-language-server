@@ -1,23 +1,30 @@
-const Parser = require('web-tree-sitter');
+import { Parser, Language } from 'web-tree-sitter';
 import path from 'path';
 
 export class EdgeParser {
-  private parser: any;
+  private parser: Parser;
 
-  private constructor(parser: any) {
+  private constructor(parser: Parser) {
     this.parser = parser;
   }
 
   public static async create(): Promise<EdgeParser> {
     // Initialize the WebAssembly runtime
-    await Parser.Parser.init();
+    await Parser.init();
     
-    // Load the language from the WASM file
-    const wasmPath = path.join(__dirname, '..', 'wasm', 'tree-sitter-edge.wasm');
-    const language = await Parser.Language.load(wasmPath);
+    // Load the language from the npm package's WASM file
+    let language: Language;
+    try {
+      const wasmPath = require.resolve('tree-sitter-edge/tree-sitter-edge.wasm');
+      language = await Language.load(wasmPath);
+    } catch (error) {
+      // Fallback to local WASM file if npm package is not available
+      const wasmPath = path.join(__dirname, '..', 'wasm', 'tree-sitter-edge.wasm');
+      language = await Language.load(wasmPath);
+    }
     
     // Create parser and set language
-    const parser = new Parser.Parser();
+    const parser = new Parser();
     parser.setLanguage(language);
     
     return new EdgeParser(parser);
