@@ -4,6 +4,7 @@ import { EdgeParser } from '../server/parser';
 
 // Define signature information for Edge helpers and functions
 const SIGNATURES: SignatureInformation[] = [
+  // Original signatures
   {
     label: "route(routeName: string, params?: object): string",
     documentation: "Generate a URL for a named route",
@@ -109,6 +110,268 @@ const SIGNATURES: SignatureInformation[] = [
     label: "csrfToken(): string",
     documentation: "Get the current CSRF token",
     parameters: []
+  },
+  
+  // New EdgeJS signatures
+  {
+    label: "signedRoute(routeName: string, params?: object, expiresIn?: string): string",
+    documentation: "Generate a signed URL for a named route",
+    parameters: [
+      {
+        label: "routeName",
+        documentation: "The name of the route"
+      },
+      {
+        label: "params",
+        documentation: "Optional parameters to pass to the route"
+      },
+      {
+        label: "expiresIn",
+        documentation: "Optional expiration time for the signature"
+      }
+    ]
+  },
+  {
+    label: "t(key: string, ...args: any[]): string",
+    documentation: "Translate a string using the i18n system",
+    parameters: [
+      {
+        label: "key",
+        documentation: "The translation key"
+      },
+      {
+        label: "...args",
+        documentation: "Optional arguments to pass to the translation"
+      }
+    ]
+  },
+  {
+    label: "toAttrs(props: object): string",
+    documentation: "Convert props object to HTML attributes string",
+    parameters: [
+      {
+        label: "props",
+        documentation: "Props object to convert to attributes"
+      }
+    ]
+  },
+  {
+    label: "merge(props: object, defaults: object): object",
+    documentation: "Merge props object with default values",
+    parameters: [
+      {
+        label: "props",
+        documentation: "Props object to merge"
+      },
+      {
+        label: "defaults",
+        documentation: "Default values to merge with"
+      }
+    ]
+  },
+  {
+    label: "only(props: object, keys: string[]): object",
+    documentation: "Extract only specified props from props object",
+    parameters: [
+      {
+        label: "props",
+        documentation: "Props object to extract from"
+      },
+      {
+        label: "keys",
+        documentation: "Array of keys to extract"
+      }
+    ]
+  },
+  {
+    label: "except(props: object, keys: string[]): object",
+    documentation: "Exclude specified props from props object",
+    parameters: [
+      {
+        label: "props",
+        documentation: "Props object to exclude from"
+      },
+      {
+        label: "keys",
+        documentation: "Array of keys to exclude"
+      }
+    ]
+  },
+  {
+    label: "nl2br(text: string): string",
+    documentation: "Convert newlines to <br> tags",
+    parameters: [
+      {
+        label: "text",
+        documentation: "Text to convert newlines in"
+      }
+    ]
+  },
+  {
+    label: "truncate(text: string, length: number, suffix?: string): string",
+    documentation: "Truncate text to specified length",
+    parameters: [
+      {
+        label: "text",
+        documentation: "Text to truncate"
+      },
+      {
+        label: "length",
+        documentation: "Maximum length of truncated text"
+      },
+      {
+        label: "suffix",
+        documentation: "Optional suffix to append to truncated text"
+      }
+    ]
+  },
+  {
+    label: "excerpt(text: string, length: number, options?: object): string",
+    documentation: "Create excerpt from text",
+    parameters: [
+      {
+        label: "text",
+        documentation: "Text to create excerpt from"
+      },
+      {
+        label: "length",
+        documentation: "Length of excerpt"
+      },
+      {
+        label: "options",
+        documentation: "Optional options for excerpt creation"
+      }
+    ]
+  },
+  {
+    label: "escape(html: string): string",
+    documentation: "Escape HTML entities",
+    parameters: [
+      {
+        label: "html",
+        documentation: "HTML string to escape"
+      }
+    ]
+  },
+  {
+    label: "safe(html: string): string",
+    documentation: "Mark HTML as safe (no escaping)",
+    parameters: [
+      {
+        label: "html",
+        documentation: "HTML string to mark as safe"
+      }
+    ]
+  },
+  {
+    label: "classNames(...classes: (string | object | boolean)[]): string",
+    documentation: "Generate CSS class names from arguments",
+    parameters: [
+      {
+        label: "...classes",
+        documentation: "Class names or objects with class names as keys"
+      }
+    ]
+  },
+  {
+    label: "attrs(attributes: object): string",
+    documentation: "Generate HTML attributes from object",
+    parameters: [
+      {
+        label: "attributes",
+        documentation: "Object with attribute names as keys and values as values"
+      }
+    ]
+  },
+  {
+    label: "camelCase(text: string): string",
+    documentation: "Convert text to camelCase",
+    parameters: [
+      {
+        label: "text",
+        documentation: "Text to convert to camelCase"
+      }
+    ]
+  },
+  {
+    label: "snakeCase(text: string): string",
+    documentation: "Convert text to snake_case",
+    parameters: [
+      {
+        label: "text",
+        documentation: "Text to convert to snake_case"
+      }
+    ]
+  },
+  {
+    label: "dashCase(text: string): string",
+    documentation: "Convert text to dash-case",
+    parameters: [
+      {
+        label: "text",
+        documentation: "Text to convert to dash-case"
+      }
+    ]
+  },
+  {
+    label: "pascalCase(text: string): string",
+    documentation: "Convert text to PascalCase",
+    parameters: [
+      {
+        label: "text",
+        documentation: "Text to convert to PascalCase"
+      }
+    ]
+  },
+  {
+    label: "titleCase(text: string): string",
+    documentation: "Convert text to Title Case",
+    parameters: [
+      {
+        label: "text",
+        documentation: "Text to convert to Title Case"
+      }
+    ]
+  },
+  {
+    label: "capitalCase(text: string): string",
+    documentation: "Convert text to Capital Case",
+    parameters: [
+      {
+        label: "text",
+        documentation: "Text to convert to Capital Case"
+      }
+    ]
+  },
+  {
+    label: "prettyMs(milliseconds: number): string",
+    documentation: "Format milliseconds as human-readable time",
+    parameters: [
+      {
+        label: "milliseconds",
+        documentation: "Number of milliseconds to format"
+      }
+    ]
+  },
+  {
+    label: "toBytes(size: string): number",
+    documentation: "Convert size string to bytes",
+    parameters: [
+      {
+        label: "size",
+        documentation: "Size string (e.g. '1KB', '2MB')"
+      }
+    ]
+  },
+  {
+    label: "ordinal(number: number): string",
+    documentation: "Convert number to ordinal (1st, 2nd, 3rd, etc.)",
+    parameters: [
+      {
+        label: "number",
+        documentation: "Number to convert to ordinal"
+      }
+    ]
   }
 ];
 

@@ -89,13 +89,67 @@ export class EdgeSemanticTokensProvider {
 
   private getTokenType(node: any): number | undefined {
     switch (node.type) {
+      // Conditional directives
       case 'if_directive':
-      case 'each_directive':
-      case 'include_directive':
-      case 'component_directive':
-      case 'simple_directive':
+      case 'elseif_directive':
+      case 'else_directive':
+      case 'unless_directive':
+      case 'endif_directive':
+      case 'endunless_directive':
         return TOKEN_TYPES.indexOf('directive');
         
+      // Loop directives
+      case 'each_directive':
+      case 'forelse_directive':
+      case 'endforeach_directive':
+      case 'empty_directive':
+      case 'endforelse_directive':
+      case 'for_directive':
+      case 'endfor_directive':
+      case 'while_directive':
+      case 'endwhile_directive':
+        return TOKEN_TYPES.indexOf('directive');
+        
+      // Component and template directives
+      case 'component_directive':
+      case 'inline_component_directive':
+      case 'endcomponent_directive':
+      case 'slot_directive':
+      case 'endslot_directive':
+      case 'inject_directive':
+      case 'include_directive':
+      case 'include_if_directive':
+        return TOKEN_TYPES.indexOf('directive');
+        
+      // Utility directives
+      case 'eval_directive':
+      case 'new_error_directive':
+      case 'svg_directive':
+      case 'debugger_directive':
+      case 'let_directive':
+      case 'assign_directive':
+      case 'vite_directive':
+        return TOKEN_TYPES.indexOf('directive');
+        
+      // Other directives
+      case 'section_directive':
+      case 'endsection_directive':
+      case 'yield_directive':
+      case 'extends_directive':
+      case 'block_directive':
+      case 'endblock_directive':
+      case 'has_block_directive':
+      case 'break_directive':
+      case 'continue_directive':
+      case 'super_directive':
+      case 'debug_directive':
+      case 'endphp_directive':
+      case 'endphpp_directive':
+      case 'verbatim_directive':
+      case 'endverbatim_directive':
+        return TOKEN_TYPES.indexOf('directive');
+        
+      // Interpolations
       case 'mustache':
       case 'safe_mustache':
         return TOKEN_TYPES.indexOf('interpolation');

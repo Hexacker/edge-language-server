@@ -2,6 +2,7 @@ import * as path from 'path';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Definition, Location, Position } from 'vscode-languageserver/node';
 import { EdgeParser } from '../server/parser';
+import { uriToPath } from '../utils/file-utils';
 
 export class EdgeDefinitionProvider {
   constructor(private edgeParser: EdgeParser) {}
@@ -13,8 +14,11 @@ export class EdgeDefinitionProvider {
 
     if (!node) return null;
 
-    // Handle @include and @component directives
-    if (node.type === 'include_directive' || node.type === 'component_directive') {
+    // Handle @include, @includeIf, @component, and @!component directives
+    if (node.type === 'include_directive' || 
+        node.type === 'include_if_directive' || 
+        node.type === 'component_directive' || 
+        node.type === 'inline_component_directive') {
       return this.resolveTemplateReference(node, document);
     }
 
@@ -43,7 +47,7 @@ export class EdgeDefinitionProvider {
 
   private resolveTemplatePath(templatePath: string, currentDocumentUri: string): string | null {
     // Convert URI to file path
-    const currentDir = path.dirname(currentDocumentUri.replace('file://', ''));
+    const currentDir = path.dirname(uriToPath(currentDocumentUri));
 
     // Convert dot notation to file path (e.g., 'layouts.main' -> 'layouts/main.edge')
     const relativePath = templatePath.replace(/\./g, '/') + '.edge';
