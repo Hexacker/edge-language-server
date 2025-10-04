@@ -41,7 +41,7 @@ Creates a conditional block that renders content based on a condition.
   Content to render if true
 @else
   Content to render if false
-@endif
+@end
 \`\`\`
 `,
           },
@@ -189,7 +189,7 @@ Defines a named slot in a component.
 \`\`\`edge
 @slot('header')
   <h1>Welcome</h1>
-@endslot
+@end
 \`\`\`
 `,
           },

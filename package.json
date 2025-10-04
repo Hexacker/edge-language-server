@@ -1,6 +1,6 @@
 {
   "name": "edge-language-server",
-  "version": "1.0.6",
+  "version": "1.0.8",
   "description": "A language server for the Edge templating engine.",
   "main": "out/server.js",
   "files": [

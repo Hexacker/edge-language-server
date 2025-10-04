@@ -118,16 +118,7 @@ export class EdgeCompletionProvider {
       insertTextFormat: InsertTextFormat.Snippet,
       documentation: "Evaluate a JavaScript expression.",
     },
-    {
-      label: "@newError",
-      kind: CompletionItemKind.Function,
-      detail: "Create new error",
-      insertText:
-        "@newError(${1:message}, ${2:filename}, ${3:line}, ${4:column})",
-      insertTextFormat: InsertTextFormat.Snippet,
-      documentation:
-        "Create a new error with message, filename, line, and column.",
-    },
+
     {
       label: "@svg",
       kind: CompletionItemKind.Function,
@@ -211,7 +202,8 @@ export class EdgeCompletionProvider {
       label: "$props",
       kind: CompletionItemKind.Variable,
       detail: "Component props object",
-      documentation: "Access component props. Methods: merge(), toAttrs(), only(), except()",
+      documentation:
+        "Access component props. Methods: merge(), toAttrs(), only(), except()",
     },
     {
       label: "$slots",
@@ -415,8 +407,6 @@ export class EdgeCompletionProvider {
       documentation: "Exclude specified props from props object",
     },
   ];
-
-
 
   private textProcessingHelpers: CompletionItem[] = [
     {
