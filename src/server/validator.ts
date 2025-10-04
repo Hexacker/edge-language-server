@@ -302,64 +302,6 @@ export class EdgeValidator {
     }
   }
 
-  private validateForDirective(
-    node: any,
-    document: TextDocument,
-    diagnostics: Diagnostic[],
-  ) {
-    // Validate @for syntax
-    const text = node.text;
-    if (!text.includes(";") || (!text.includes("<") && !text.includes(">"))) {
-      diagnostics.push({
-        severity: DiagnosticSeverity.Warning,
-        range: {
-          start: document.positionAt(node.startIndex),
-          end: document.positionAt(node.endIndex),
-        },
-        message: "@for directive should follow standard for loop syntax",
-        source: "edge",
-      });
-    }
-  }
-
-  private validateWhileDirective(
-    node: any,
-    document: TextDocument,
-    diagnostics: Diagnostic[],
-  ) {
-    // Validate @while syntax
-    const conditionNode = node.children.find(
-      (child: any) => child.type === "condition",
-    );
-    if (!conditionNode) {
-      diagnostics.push({
-        severity: DiagnosticSeverity.Error,
-        range: {
-          start: document.positionAt(node.startIndex),
-          end: document.positionAt(node.endIndex),
-        },
-        message: "@while directive missing condition",
-        source: "edge",
-      });
-    }
-  }
-
-  private validateVerbatimDirective(
-    node: any,
-    document: TextDocument,
-    diagnostics: Diagnostic[],
-  ) {
-    // @verbatim doesn't need special validation
-  }
-
-  private validateEndPhpDirective(
-    node: any,
-    document: TextDocument,
-    diagnostics: Diagnostic[],
-  ) {
-    // @endphp doesn't need special validation
-  }
-
   private validateInterpolation(
     node: any,
     document: TextDocument,

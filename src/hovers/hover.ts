@@ -64,7 +64,7 @@ Adds an else-if condition to an if block.
   Content for condition 2
 @else
   Content for neither condition
-@endif
+@end
 \`\`\`
 `,
           },
@@ -104,7 +104,7 @@ Creates a conditional block that renders content unless a condition is true.
 \`\`\`edge
 @unless(condition)
   Content to render if false
-@endunless
+@end
 \`\`\`
 `,
           },
@@ -124,14 +124,14 @@ Loops over iterable data and renders content for each item.
 \`\`\`edge
 @each(item in items)
   {{ item.name }}
-@endforeach
+@end
 \`\`\`
 
 With index:
 \`\`\`edge
 @each((item, index) in items)
   {{ index }}: {{ item.name }}
-@endforeach
+@end
 \`\`\`
 `,
           },
@@ -152,7 +152,7 @@ Includes a reusable component.
 @component('components/button')
   @slot('text')
     Click me
-  @endslot
+  @end
 @endcomponent
 \`\`\`
 `,
@@ -242,23 +242,6 @@ Includes a template file only if a condition is true.
 
 \`\`\`edge
 @includeIf(user.isAdmin, 'admin.panel')
-\`\`\`
-`,
-          },
-          range,
-        };
-
-      case "new_error_directive":
-        return {
-          contents: {
-            kind: MarkupKind.Markdown,
-            value: `
-**@newError Directive**
-
-Creates a new error with message, filename, line, and column.
-
-\`\`\`edge
-@newError('Error message', 'filename.edge', 10, 5)
 \`\`\`
 `,
           },
@@ -364,25 +347,7 @@ Defines a named section.
 \`\`\`edge
 @section('content')
   <h1>Page Content</h1>
-@endsection
-\`\`\`
-`,
-          },
-          range,
-        };
-
-      case "yield_directive":
-        return {
-          contents: {
-            kind: MarkupKind.Markdown,
-            value: `
-**@yield Directive**
-
-Yields content for a named section.
-
-\`\`\`edge
-@yield('content')
-@yield('sidebar', 'Default sidebar content')
+@end
 \`\`\`
 `,
           },
@@ -406,146 +371,6 @@ Extends a layout template.
           range,
         };
 
-      case "block_directive":
-        return {
-          contents: {
-            kind: MarkupKind.Markdown,
-            value: `
-**@block Directive**
-
-Defines a named block.
-
-\`\`\`edge
-@block('sidebar')
-  <p>Sidebar content</p>
-@endblock
-\`\`\`
-`,
-          },
-          range,
-        };
-
-      case "has_block_directive":
-        return {
-          contents: {
-            kind: MarkupKind.Markdown,
-            value: `
-**@hasBlock Directive**
-
-Checks if a named block exists.
-
-\`\`\`edge
-@hasBlock('sidebar')
-  @yield('sidebar')
-@endif
-\`\`\`
-`,
-          },
-          range,
-        };
-
-      case "for_directive":
-        return {
-          contents: {
-            kind: MarkupKind.Markdown,
-            value: `
-**@for Directive**
-
-Creates a for loop.
-
-\`\`\`edge
-@for(let i = 0; i < 10; i++)
-  <p>Item {{ i }}</p>
-@endfor
-\`\`\`
-`,
-          },
-          range,
-        };
-
-      case "while_directive":
-        return {
-          contents: {
-            kind: MarkupKind.Markdown,
-            value: `
-**@while Directive**
-
-Creates a while loop.
-
-\`\`\`edge
-@while(condition)
-  <p>Loop content</p>
-@endwhile
-\`\`\`
-`,
-          },
-          range,
-        };
-
-      case "break_directive":
-        return {
-          contents: {
-            kind: MarkupKind.Markdown,
-            value: `
-**@break Directive**
-
-Breaks out of a loop.
-
-\`\`\`edge
-@each(item in items)
-  @if(item.hidden)
-    @break
-  @endif
-  <p>{{ item.name }}</p>
-@endforeach
-\`\`\`
-`,
-          },
-          range,
-        };
-
-      case "continue_directive":
-        return {
-          contents: {
-            kind: MarkupKind.Markdown,
-            value: `
-**@continue Directive**
-
-Continues to the next iteration of a loop.
-
-\`\`\`edge
-@each(item in items)
-  @if(item.hidden)
-    @continue
-  @endif
-  <p>{{ item.name }}</p>
-@endforeach
-\`\`\`
-`,
-          },
-          range,
-        };
-
-      case "super_directive":
-        return {
-          contents: {
-            kind: MarkupKind.Markdown,
-            value: `
-**@super Directive**
-
-Renders the parent block content.
-
-\`\`\`edge
-@block('content')
-  @super
-  <p>Additional content</p>
-@endblock
-\`\`\`
-`,
-          },
-          range,
-        };
-
       case "debug_directive":
         return {
           contents: {
@@ -557,44 +382,6 @@ Outputs debug information.
 
 \`\`\`edge
 @debug(variable)
-\`\`\`
-`,
-          },
-          range,
-        };
-
-      case "endphp_directive":
-        return {
-          contents: {
-            kind: MarkupKind.Markdown,
-            value: `
-**@endphp Directive**
-
-Writes raw PHP code.
-
-\`\`\`edge
-@php
-  $variable = 'value';
-@endphp
-\`\`\`
-`,
-          },
-          range,
-        };
-
-      case "verbatim_directive":
-        return {
-          contents: {
-            kind: MarkupKind.Markdown,
-            value: `
-**@verbatim Directive**
-
-Outputs content without parsing Edge syntax.
-
-\`\`\`edge
-@verbatim
-  {{ This will not be parsed as Edge syntax }}
-@endverbatim
 \`\`\`
 `,
           },
