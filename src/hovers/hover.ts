@@ -1,6 +1,6 @@
-import { TextDocument } from 'vscode-languageserver-textdocument';
-import { Hover, MarkupKind, Position } from 'vscode-languageserver/node';
-import { EdgeParser } from '../server/parser';
+import { TextDocument } from "vscode-languageserver-textdocument";
+import { Hover, MarkupKind, Position } from "vscode-languageserver/node";
+import { EdgeParser } from "../server/parser";
 
 export class EdgeHoverProvider {
   constructor(private edgeParser: EdgeParser) {}
@@ -8,7 +8,11 @@ export class EdgeHoverProvider {
   provideHover(document: TextDocument, position: Position): Hover | null {
     const text = document.getText();
     const tree: any = this.edgeParser.parse(text);
-    const node: any = this.edgeParser.getNodeAtPosition(tree, position.line, position.character);
+    const node: any = this.edgeParser.getNodeAtPosition(
+      tree,
+      position.line,
+      position.character,
+    );
 
     if (!node) return null;
 
@@ -23,7 +27,7 @@ export class EdgeHoverProvider {
 
     switch (node.type) {
       // Conditional directives
-      case 'if_directive':
+      case "if_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -43,8 +47,8 @@ Creates a conditional block that renders content based on a condition.
           },
           range,
         };
-        
-      case 'elseif_directive':
+
+      case "elseif_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -66,8 +70,8 @@ Adds an else-if condition to an if block.
           },
           range,
         };
-        
-      case 'else_directive':
+
+      case "else_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -81,14 +85,14 @@ Adds an else clause to an if block.
   Content to render if true
 @else
   Content to render if false
-@endif
+@end
 \`\`\`
 `,
           },
           range,
         };
-        
-      case 'unless_directive':
+
+      case "unless_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -108,7 +112,7 @@ Creates a conditional block that renders content unless a condition is true.
         };
 
       // Loop directives
-      case 'each_directive':
+      case "each_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -133,30 +137,9 @@ With index:
           },
           range,
         };
-        
-      case 'forelse_directive':
-        return {
-          contents: {
-            kind: MarkupKind.Markdown,
-            value: `
-**@forelse Directive**
-
-Loops over iterable data with a fallback for empty collections.
-
-\`\`\`edge
-@forelse(item in items)
-  {{ item.name }}
-@empty
-  No items found
-@endforelse
-\`\`\`
-`,
-          },
-          range,
-        };
 
       // Component and template directives
-      case 'component_directive':
+      case "component_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -176,8 +159,8 @@ Includes a reusable component.
           },
           range,
         };
-        
-      case 'inline_component_directive':
+
+      case "inline_component_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -193,8 +176,8 @@ Includes a component inline without a block.
           },
           range,
         };
-        
-      case 'slot_directive':
+
+      case "slot_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -212,8 +195,8 @@ Defines a named slot in a component.
           },
           range,
         };
-        
-      case 'inject_directive':
+
+      case "inject_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -229,8 +212,8 @@ Injects a variable into the template context.
           },
           range,
         };
-        
-      case 'include_directive':
+
+      case "include_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -247,8 +230,8 @@ Includes another template file.
           },
           range,
         };
-        
-      case 'include_if_directive':
+
+      case "include_if_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -265,25 +248,7 @@ Includes a template file only if a condition is true.
           range,
         };
 
-      // Utility directives
-      case 'eval_directive':
-        return {
-          contents: {
-            kind: MarkupKind.Markdown,
-            value: `
-**@eval Directive**
-
-Evaluates a JavaScript expression.
-
-\`\`\`edge
-@eval(expression)
-\`\`\`
-`,
-          },
-          range,
-        };
-        
-      case 'new_error_directive':
+      case "new_error_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -299,8 +264,8 @@ Creates a new error with message, filename, line, and column.
           },
           range,
         };
-        
-      case 'svg_directive':
+
+      case "svg_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -316,8 +281,8 @@ Includes an SVG file.
           },
           range,
         };
-        
-      case 'debugger_directive':
+
+      case "debugger_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -333,8 +298,8 @@ Sets a debug breakpoint.
           },
           range,
         };
-        
-      case 'let_directive':
+
+      case "let_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -351,8 +316,8 @@ Declares a template variable.
           },
           range,
         };
-        
-      case 'assign_directive':
+
+      case "assign_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -368,8 +333,8 @@ Assigns a value to a variable.
           },
           range,
         };
-        
-      case 'vite_directive':
+
+      case "vite_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -387,7 +352,7 @@ Handles Vite assets.
         };
 
       // Other directives
-      case 'section_directive':
+      case "section_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -405,8 +370,8 @@ Defines a named section.
           },
           range,
         };
-        
-      case 'yield_directive':
+
+      case "yield_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -423,8 +388,8 @@ Yields content for a named section.
           },
           range,
         };
-        
-      case 'extends_directive':
+
+      case "extends_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -440,8 +405,8 @@ Extends a layout template.
           },
           range,
         };
-        
-      case 'block_directive':
+
+      case "block_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -459,8 +424,8 @@ Defines a named block.
           },
           range,
         };
-        
-      case 'has_block_directive':
+
+      case "has_block_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -478,8 +443,8 @@ Checks if a named block exists.
           },
           range,
         };
-        
-      case 'for_directive':
+
+      case "for_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -497,8 +462,8 @@ Creates a for loop.
           },
           range,
         };
-        
-      case 'while_directive':
+
+      case "while_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -516,8 +481,8 @@ Creates a while loop.
           },
           range,
         };
-        
-      case 'break_directive':
+
+      case "break_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -538,8 +503,8 @@ Breaks out of a loop.
           },
           range,
         };
-        
-      case 'continue_directive':
+
+      case "continue_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -560,8 +525,8 @@ Continues to the next iteration of a loop.
           },
           range,
         };
-        
-      case 'super_directive':
+
+      case "super_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -580,8 +545,8 @@ Renders the parent block content.
           },
           range,
         };
-        
-      case 'debug_directive':
+
+      case "debug_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -597,8 +562,8 @@ Outputs debug information.
           },
           range,
         };
-        
-      case 'endphp_directive':
+
+      case "endphp_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -616,8 +581,8 @@ Writes raw PHP code.
           },
           range,
         };
-        
-      case 'verbatim_directive':
+
+      case "verbatim_directive":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -637,7 +602,7 @@ Outputs content without parsing Edge syntax.
         };
 
       // Interpolations
-      case 'interpolation':
+      case "interpolation":
         return {
           contents: {
             kind: MarkupKind.Markdown,
@@ -657,8 +622,8 @@ Use {{{{ }}}} for unescaped output.
           },
           range,
         };
-        
-      case 'safe_interpolation':
+
+      case "safe_interpolation":
         return {
           contents: {
             kind: MarkupKind.Markdown,
