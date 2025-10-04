@@ -16,7 +16,7 @@ export class EdgeCompletionProvider {
       label: "@if",
       kind: CompletionItemKind.Keyword,
       detail: "Conditional directive",
-      insertText: "@if(${1:condition})\n\t${2:content}\n@endif",
+      insertText: "@if(${1:condition})\n\t${2:content}\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
       documentation:
         "Creates a conditional block that renders content based on a condition.",
@@ -25,7 +25,8 @@ export class EdgeCompletionProvider {
       label: "@elseif",
       kind: CompletionItemKind.Keyword,
       detail: "Else-if directive",
-      insertText: "@elseif(${1:condition})\n\t${2:content}",
+      insertText:
+        "@if(${1:condition})\n\t${2:content}\n@elseif(${1:condition})\n\t${2:content}\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
       documentation: "Adds an else-if condition to an if block.",
     },
@@ -41,7 +42,7 @@ export class EdgeCompletionProvider {
       label: "@unless",
       kind: CompletionItemKind.Keyword,
       detail: "Unless directive",
-      insertText: "@unless(${1:condition})\n\t${2:content}\n@endunless",
+      insertText: "@unless(${1:condition})\n\t${2:content}\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
       documentation:
         "Creates a conditional block that renders content unless a condition is true.",
@@ -52,20 +53,10 @@ export class EdgeCompletionProvider {
       label: "@each",
       kind: CompletionItemKind.Keyword,
       detail: "Loop directive",
-      insertText: "@each(${1:item} in ${2:items})\n\t${3:content}\n@endforeach",
+      insertText: "@each(${1:item} in ${2:items})\n\t${3:content}\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
       documentation:
         "Loops over iterable data and renders content for each item.",
-    },
-    {
-      label: "@forelse",
-      kind: CompletionItemKind.Keyword,
-      detail: "Loop with empty state",
-      insertText:
-        "@forelse(${1:item} in ${2:items})\n\t${3:content}\n@empty\n\t${4:emptyContent}\n@endforelse",
-      insertTextFormat: InsertTextFormat.Snippet,
-      documentation:
-        "Loops over iterable data with a fallback for empty collections.",
     },
 
     // Component and template directives
@@ -89,7 +80,7 @@ export class EdgeCompletionProvider {
       label: "@slot",
       kind: CompletionItemKind.Function,
       detail: "Define slot",
-      insertText: "@slot('${1:name}')\n\t${2:content}\n@endslot",
+      insertText: "@slot('${1:name}')\n\t${2:content}\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
       documentation: "Define a named slot in a component.",
     },
@@ -169,6 +160,14 @@ export class EdgeCompletionProvider {
       documentation: "Assign a value to a variable.",
     },
     {
+      label: "@set",
+      kind: CompletionItemKind.Variable,
+      detail: "Set variable",
+      insertText: "@set(${1:name} = ${2:value})",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Set a variable value.",
+    },
+    {
       label: "@vite",
       kind: CompletionItemKind.Function,
       detail: "Vite asset",
@@ -177,92 +176,66 @@ export class EdgeCompletionProvider {
       documentation: "Handle Vite assets.",
     },
 
-    // Other directives
+    // Auto-closing pairs
     {
-      label: "@section",
-      kind: CompletionItemKind.Function,
-      detail: "Define section",
-      insertText: "@section('${1:name}')\n\t${2:content}\n@endsection",
+      label: "{{-- Comment --}}",
+      kind: CompletionItemKind.Snippet,
+      detail: "EdgeJS Comment",
+      insertText: "{{-- ${1:comment} --}}",
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Define a named section.",
+      filterText: "{{--",
+      documentation: "Insert an EdgeJS comment block.",
     },
     {
-      label: "@yield",
-      kind: CompletionItemKind.Function,
-      detail: "Yield section",
-      insertText: "@yield('${1:name}')",
+      label: "{{{ Raw Output }}}",
+      kind: CompletionItemKind.Snippet,
+      detail: "EdgeJS Raw Output (unescaped)",
+      insertText: "{{{ ${1:expression} }}}",
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Yield content for a named section.",
+      filterText: "{{{",
+      documentation: "Output raw, unescaped HTML content.",
     },
     {
-      label: "@extends",
-      kind: CompletionItemKind.Function,
-      detail: "Extend layout",
-      insertText: "@extends('${1:layout}')",
+      label: "{{ Escaped Output }}",
+      kind: CompletionItemKind.Snippet,
+      detail: "EdgeJS Escaped Output",
+      insertText: "{{ ${1:expression} }}",
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Extend a layout template.",
+      filterText: "{{",
+      documentation: "Output escaped content (safe for HTML).",
+    },
+  ];
+
+  private edgeSpecialVariables: CompletionItem[] = [
+    {
+      label: "$props",
+      kind: CompletionItemKind.Variable,
+      detail: "Component props object",
+      documentation: "Access component props. Methods: merge(), toAttrs(), only(), except()",
     },
     {
-      label: "@block",
-      kind: CompletionItemKind.Function,
-      detail: "Define block",
-      insertText: "@block('${1:name}')\n\t${2:content}\n@endblock",
-      insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Define a named block.",
+      label: "$slots",
+      kind: CompletionItemKind.Variable,
+      detail: "Component slots object",
+      documentation: "Access component slots (e.g., $slots.main())",
     },
     {
-      label: "@hasBlock",
-      kind: CompletionItemKind.Function,
-      detail: "Check block exists",
-      insertText: "@hasBlock('${1:name}')",
-      insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Check if a named block exists.",
+      label: "$context",
+      kind: CompletionItemKind.Variable,
+      detail: "Template context",
+      documentation: "Access injected template context data",
     },
     {
-      label: "@for",
-      kind: CompletionItemKind.Keyword,
-      detail: "For loop",
-      insertText:
-        "@for(${1:init}; ${2:condition}; ${3:increment})\n\t${4:content}\n@endfor",
-      insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Create a for loop.",
+      label: "$filename",
+      kind: CompletionItemKind.Variable,
+      detail: "Current template filename",
+      documentation: "Get the current template file path",
     },
     {
-      label: "@while",
-      kind: CompletionItemKind.Keyword,
-      detail: "While loop",
-      insertText: "@while(${1:condition})\n\t${2:content}\n@endwhile",
-      insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Create a while loop.",
-    },
-    {
-      label: "@break",
-      kind: CompletionItemKind.Keyword,
-      detail: "Break loop",
-      insertText: "@break",
-      documentation: "Break out of a loop.",
-    },
-    {
-      label: "@continue",
-      kind: CompletionItemKind.Keyword,
-      detail: "Continue loop",
-      insertText: "@continue",
-      documentation: "Continue to the next iteration of a loop.",
-    },
-    {
-      label: "@super",
-      kind: CompletionItemKind.Keyword,
-      detail: "Super block",
-      insertText: "@super",
-      documentation: "Render the parent block content.",
-    },
-    {
-      label: "@debug",
-      kind: CompletionItemKind.Keyword,
-      detail: "Debug output",
-      insertText: "@debug(${1:expression})",
-      insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Output debug information.",
+      label: "$caller",
+      kind: CompletionItemKind.Variable,
+      detail: "Caller information",
+      documentation: "Get information about the template caller",
     },
   ];
 
@@ -410,62 +383,40 @@ export class EdgeCompletionProvider {
 
   private propsHelpers: CompletionItem[] = [
     {
-      label: "toAttrs",
-      kind: CompletionItemKind.Function,
+      label: "$props.toAttrs",
+      kind: CompletionItemKind.Method,
       detail: "Convert props to HTML attributes",
-      insertText: "toAttrs(${1:props})",
+      insertText: "$props.toAttrs()",
       insertTextFormat: InsertTextFormat.Snippet,
       documentation: "Convert props object to HTML attributes string",
     },
     {
-      label: "merge",
-      kind: CompletionItemKind.Function,
+      label: "$props.merge",
+      kind: CompletionItemKind.Method,
       detail: "Merge props with defaults",
-      insertText: "merge(${1:props}, ${2:defaults})",
+      insertText: "$props.merge(${1:defaults})",
       insertTextFormat: InsertTextFormat.Snippet,
       documentation: "Merge props object with default values",
     },
     {
-      label: "only",
-      kind: CompletionItemKind.Function,
+      label: "$props.only",
+      kind: CompletionItemKind.Method,
       detail: "Extract specific props",
-      insertText: "only(${1:props}, [${2:keys}])",
+      insertText: "$props.only([${1:keys}])",
       insertTextFormat: InsertTextFormat.Snippet,
       documentation: "Extract only specified props from props object",
     },
     {
-      label: "except",
-      kind: CompletionItemKind.Function,
+      label: "$props.except",
+      kind: CompletionItemKind.Method,
       detail: "Exclude specific props",
-      insertText: "except(${1:props}, [${2:keys}])",
+      insertText: "$props.except([${1:keys}])",
       insertTextFormat: InsertTextFormat.Snippet,
       documentation: "Exclude specified props from props object",
     },
   ];
 
-  private slotsHelpers: CompletionItem[] = [
-    {
-      label: "slots",
-      kind: CompletionItemKind.Variable,
-      detail: "Component slots object",
-      documentation: "Access component slots",
-    },
-  ];
 
-  private debugHelpers: CompletionItem[] = [
-    {
-      label: "filename",
-      kind: CompletionItemKind.Variable,
-      detail: "Current template filename",
-      documentation: "Get the current template filename",
-    },
-    {
-      label: "caller",
-      kind: CompletionItemKind.Variable,
-      detail: "Caller information",
-      documentation: "Get information about the caller",
-    },
-  ];
 
   private textProcessingHelpers: CompletionItem[] = [
     {
@@ -565,29 +516,37 @@ export class EdgeCompletionProvider {
       insertText: "capitalCase(${1:text})",
       insertTextFormat: InsertTextFormat.Snippet,
     },
+    {
+      label: "sentenceCase",
+      kind: CompletionItemKind.Function,
+      detail: "Convert to Sentence case",
+      insertText: "sentenceCase(${1:text})",
+      insertTextFormat: InsertTextFormat.Snippet,
+    },
+    {
+      label: "dotCase",
+      kind: CompletionItemKind.Function,
+      detail: "Convert to dot.case",
+      insertText: "dotCase(${1:text})",
+      insertTextFormat: InsertTextFormat.Snippet,
+    },
+    {
+      label: "noCase",
+      kind: CompletionItemKind.Function,
+      detail: "Convert to no case",
+      insertText: "noCase(${1:text})",
+      insertTextFormat: InsertTextFormat.Snippet,
+    },
   ];
 
-  private numberTimeHelpers: CompletionItem[] = [
+  private debugHelpers: CompletionItem[] = [
     {
-      label: "prettyMs",
+      label: "inspect",
       kind: CompletionItemKind.Function,
-      detail: "Format milliseconds",
-      insertText: "prettyMs(${1:milliseconds})",
+      detail: "Inspect and debug values",
+      insertText: "inspect(${1:value})",
       insertTextFormat: InsertTextFormat.Snippet,
-    },
-    {
-      label: "toBytes",
-      kind: CompletionItemKind.Function,
-      detail: "Convert to bytes",
-      insertText: "toBytes(${1:size})",
-      insertTextFormat: InsertTextFormat.Snippet,
-    },
-    {
-      label: "ordinal",
-      kind: CompletionItemKind.Function,
-      detail: "Convert to ordinal",
-      insertText: "ordinal(${1:number})",
-      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Inspect and output a value for debugging purposes",
     },
   ];
 
@@ -657,15 +616,14 @@ export class EdgeCompletionProvider {
     // For now, return common helpers.
     // In the future, we can analyze the expression to provide more specific completions.
     return [
+      ...this.edgeSpecialVariables,
       ...this.commonHelpers,
       ...this.adonisJsHelpers,
       ...this.propsHelpers,
-      ...this.slotsHelpers,
-      ...this.debugHelpers,
       ...this.textProcessingHelpers,
       ...this.htmlHelpers,
       ...this.stringHelpers,
-      ...this.numberTimeHelpers,
+      ...this.debugHelpers,
     ];
   }
 

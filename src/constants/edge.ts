@@ -2,27 +2,22 @@
  * Constants for Edge language constructs
  */
 
-// Edge directives
+// Edge directives (official EdgeJS directives only)
 export const DIRECTIVES = [
   // Conditional directives
   'if',
-  'elseif',
+  'elseif', 
   'else',
   'unless',
-  'endif',
-  'endunless',
+  'end',
   
   // Loop directives
   'each',
-  'forelse',
-  'endforeach',
   
   // Component and template directives
   'component',
   '!component',
-  'endcomponent',
   'slot',
-  'endslot',
   'inject',
   'include',
   'includeIf',
@@ -36,25 +31,15 @@ export const DIRECTIVES = [
   'assign',
   'vite',
   
-  // Other directives
+  // Layout directives
+  'layout',
   'section',
-  'endsection',
-  'yield',
-  'extends',
-  'block',
-  'endblock',
-  'hasBlock',
-  'for',
-  'endfor',
-  'while',
-  'endwhile',
+  
+  // Other directives
   'break',
   'continue',
   'super',
-  'debug',
-  'endphp',
-  'verbatim',
-  'endverbatim'
+  'debug'
 ];
 
 // Edge global helpers
