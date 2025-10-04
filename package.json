@@ -1,8 +1,12 @@
 {
   "name": "edge-language-server",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "A language server for the Edge templating engine.",
   "main": "out/server.js",
+  "files": [
+    "out/**/*",
+    "wasm/**/*"
+  ],
   "scripts": {
     "build": "tsc",
     "start": "node out/server.js --stdio",
@@ -25,13 +29,12 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "tree-sitter": "^0.21.1",
-    "tree-sitter-edge": "^0.1.0",
+    "typescript": "^5.9.3",
     "vscode-css-languageservice": "^6.3.7",
     "vscode-html-languageservice": "^5.5.1",
     "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-textdocument": "^1.0.12",
-    "web-tree-sitter": "^0.25.9"
+    "web-tree-sitter": "^0.25.10"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

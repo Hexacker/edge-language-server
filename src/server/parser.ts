@@ -12,16 +12,9 @@ export class EdgeParser {
     // Initialize the WebAssembly runtime
     await Parser.init();
     
-    // Load the language from the npm package's WASM file
-    let language: Language;
-    try {
-      const wasmPath = require.resolve('tree-sitter-edge/tree-sitter-edge.wasm');
-      language = await Language.load(wasmPath);
-    } catch (error) {
-      // Fallback to local WASM file if npm package is not available
-      const wasmPath = path.join(__dirname, '..', '..', 'wasm', 'tree-sitter-edge.wasm');
-      language = await Language.load(wasmPath);
-    }
+    // Load the language from the bundled WASM file
+    const wasmPath = path.join(__dirname, '..', '..', 'wasm', 'tree-sitter-edge.wasm');
+    const language = await Language.load(wasmPath);
     
     // Create parser and set language
     const parser = new Parser();

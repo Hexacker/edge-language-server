@@ -5,9 +5,17 @@ import {
   InitializeParams,
   InitializeResult,
   TextDocumentSyncKind,
+  CompletionItem,
+  Hover,
+  Definition,
+  Position
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
+import { EdgeParser } from './server/parser';
+import { EdgeCompletionProvider } from './completions/completion';
+import { EdgeHoverProvider } from './hovers/hover';
+import { EdgeDefinitionProvider } from './definitions/definition';
 
 // Create a connection for the server
 const connection = createConnection(ProposedFeatures.all);
@@ -19,7 +27,19 @@ let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
 let hasDiagnosticRelatedInformationCapability = false;
 
-connection.onInitialize((params: InitializeParams) => {
+// Initialize the Edge parser
+let edgeParser: EdgeParser;
+let completionProvider: EdgeCompletionProvider;
+let hoverProvider: EdgeHoverProvider;
+let definitionProvider: EdgeDefinitionProvider;
+
+connection.onInitialize(async (params: InitializeParams) => {
+  // Initialize the parser
+  edgeParser = await EdgeParser.create();
+  completionProvider = new EdgeCompletionProvider(edgeParser);
+  hoverProvider = new EdgeHoverProvider(edgeParser);
+  definitionProvider = new EdgeDefinitionProvider(edgeParser);
+
   const capabilities = params.capabilities;
 
   // Does the client support the `workspace/configuration` request?
@@ -45,7 +65,7 @@ connection.onInitialize((params: InitializeParams) => {
       },
       hoverProvider: true,
       definitionProvider: true,
-      documentFormattingProvider: false, // We'll add this later
+      // documentFormattingProvider: false, // Formatting not implemented yet
     }
   };
   
@@ -78,6 +98,36 @@ documents.onDidChangeContent(change => {
   // In a real implementation, you would validate the document here
   // and send diagnostics to the client
   connection.console.log(`Document changed: ${change.document.uri}`);
+});
+
+connection.onCompletion((textDocumentPosition) => {
+  const document = documents.get(textDocumentPosition.textDocument.uri);
+  if (document && edgeParser) {
+    const position: Position = textDocumentPosition.position;
+    return completionProvider.provideCompletions(document, position);
+  }
+  return [];
+});
+
+connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
+  // Here you would resolve more detailed information for a completion item
+  return item;
+});
+
+connection.onHover((params) => {
+  const document = documents.get(params.textDocument.uri);
+  if (document && edgeParser) {
+    return hoverProvider.provideHover(document, params.position);
+  }
+  return null;
+});
+
+connection.onDefinition((params) => {
+  const document = documents.get(params.textDocument.uri);
+  if (document && edgeParser) {
+    return definitionProvider.provideDefinition(document, params.position);
+  }
+  return null;
 });
 
 connection.onDidChangeConfiguration(change => {
