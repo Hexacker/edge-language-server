@@ -18,6 +18,7 @@ export class EdgeCompletionProvider {
       detail: "Conditional directive",
       insertText: "@if(${1:condition})\n\t${2:content}\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "if",
       documentation:
         "Creates a conditional block that renders content based on a condition.",
     },
@@ -28,6 +29,7 @@ export class EdgeCompletionProvider {
       insertText:
         "@if(${1:condition})\n\t${2:content}\n@elseif(${1:condition})\n\t${2:content}\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "elseif",
       documentation: "Adds an else-if condition to an if block.",
     },
     {
@@ -36,6 +38,7 @@ export class EdgeCompletionProvider {
       detail: "Else directive",
       insertText: "@else\n\t${1:content}",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "else",
       documentation: "Adds an else clause to an if block.",
     },
     {
@@ -44,6 +47,7 @@ export class EdgeCompletionProvider {
       detail: "Unless directive",
       insertText: "@unless(${1:condition})\n\t${2:content}\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "unless",
       documentation:
         "Creates a conditional block that renders content unless a condition is true.",
     },
@@ -55,6 +59,7 @@ export class EdgeCompletionProvider {
       detail: "Loop directive",
       insertText: "@each(${1:item} in ${2:items})\n\t${3:content}\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "each",
       documentation:
         "Loops over iterable data and renders content for each item.",
     },
@@ -62,8 +67,10 @@ export class EdgeCompletionProvider {
       label: "@each",
       kind: CompletionItemKind.Keyword,
       detail: "Loop with index directive",
-      insertText: "@each((${1:item}, ${2:index}) in ${3:items})\n\t${4:content}\n@end",
+      insertText:
+        "@each((${1:item}, ${2:index}) in ${3:items})\n\t${4:content}\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "each",
       documentation:
         "Loops over iterable data with index and renders content for each item.",
     },
@@ -75,6 +82,7 @@ export class EdgeCompletionProvider {
       detail: "Loop fallback directive",
       insertText: "@else\n\t${1:content}",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "else",
       documentation: "Provides fallback content when the collection is empty.",
     },
 
@@ -85,6 +93,7 @@ export class EdgeCompletionProvider {
       detail: "Include component",
       insertText: "@component('${1:name}')\n\t${2:content}\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "component",
       documentation: "Include a reusable component.",
     },
     {
@@ -93,6 +102,7 @@ export class EdgeCompletionProvider {
       detail: "Inline component rendering",
       insertText: "@!component('${1:name}')",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "!component",
       documentation: "Include a component inline without a block.",
     },
     {
@@ -101,6 +111,7 @@ export class EdgeCompletionProvider {
       detail: "Inline component with props",
       insertText: "@!component('${1:name}', { ${2:prop}: ${3:value} })",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "!component",
       documentation: "Include a component inline with props.",
     },
     {
@@ -109,6 +120,7 @@ export class EdgeCompletionProvider {
       detail: "Define slot",
       insertText: "@slot('${1:name}')\n\t${2:content}\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "slot",
       documentation: "Define a named slot in a component.",
     },
     {
@@ -117,6 +129,7 @@ export class EdgeCompletionProvider {
       detail: "Main slot",
       insertText: "@slot\n\t${1:content}\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "slot",
       documentation: "Define the main slot in a component.",
     },
     {
@@ -125,6 +138,7 @@ export class EdgeCompletionProvider {
       detail: "Auto-closed slot",
       insertText: "@!slot('${1:name}', '${2:default_content}')",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "!slot",
       documentation: "Define a named slot with default content.",
     },
     {
@@ -133,6 +147,7 @@ export class EdgeCompletionProvider {
       detail: "Inject variable",
       insertText: "@inject(${1:variable})",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "inject",
       documentation: "Inject a variable into the template context.",
     },
     {
@@ -141,6 +156,7 @@ export class EdgeCompletionProvider {
       detail: "Include template",
       insertText: "@include('${1:template}')",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "include",
       documentation: "Include another template file.",
     },
     {
@@ -149,6 +165,7 @@ export class EdgeCompletionProvider {
       detail: "Conditional include",
       insertText: "@includeIf(${1:condition}, '${2:template}')",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "includeIf",
       documentation: "Include a template file only if a condition is true.",
     },
     {
@@ -157,6 +174,7 @@ export class EdgeCompletionProvider {
       detail: "Extend layout template",
       insertText: "@extends('${1:layout}')",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "extends",
       documentation: "Extend a layout template.",
     },
     {
@@ -165,6 +183,7 @@ export class EdgeCompletionProvider {
       detail: "Define template section",
       insertText: "@section('${1:name}')\n\t${2:content}\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "section",
       documentation: "Define a named section in a template.",
     },
     {
@@ -173,6 +192,7 @@ export class EdgeCompletionProvider {
       detail: "Yield section content",
       insertText: "@yield('${1:name}')",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "yield",
       documentation: "Yield content from a named section.",
     },
 
@@ -183,6 +203,7 @@ export class EdgeCompletionProvider {
       detail: "Evaluate expression",
       insertText: "@eval(${1:expression})",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "eval",
       documentation: "Evaluate a JavaScript expression.",
     },
     {
@@ -191,6 +212,7 @@ export class EdgeCompletionProvider {
       detail: "Set variable",
       insertText: "@set(${1:name} = ${2:value})",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "set",
       documentation: "Set a variable value.",
     },
     {
@@ -199,6 +221,7 @@ export class EdgeCompletionProvider {
       detail: "Vite asset",
       insertText: "@vite('${1:path}')",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "vite",
       documentation: "Handle Vite assets.",
     },
     {
@@ -207,6 +230,7 @@ export class EdgeCompletionProvider {
       detail: "Include SVG",
       insertText: "@svg('${1:path}')",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "svg",
       documentation: "Include an SVG file.",
     },
     {
@@ -214,6 +238,7 @@ export class EdgeCompletionProvider {
       kind: CompletionItemKind.Keyword,
       detail: "Debug breakpoint",
       insertText: "@debugger",
+      filterText: "debugger",
       documentation: "Set a debug breakpoint.",
     },
     {
@@ -222,6 +247,7 @@ export class EdgeCompletionProvider {
       detail: "Declare variable",
       insertText: "@let(${1:name} = ${2:value})",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "let",
       documentation: "Declare a template variable.",
     },
     {
@@ -230,6 +256,7 @@ export class EdgeCompletionProvider {
       detail: "Assign value",
       insertText: "@assign(${1:name} = ${2:value})",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "assign",
       documentation: "Assign a value to a variable.",
     },
     {
@@ -238,6 +265,7 @@ export class EdgeCompletionProvider {
       detail: "Vite React refresh",
       insertText: "@viteReactRefresh",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "viteReactRefresh",
       documentation: "Enable React HMR in development.",
     },
     {
@@ -245,6 +273,7 @@ export class EdgeCompletionProvider {
       kind: CompletionItemKind.Function,
       detail: "Flash message helper",
       insertText: "@flashMessage('${1:key}')",
+      filterText: "flashMessage",
       insertTextFormat: InsertTextFormat.Snippet,
       documentation: "Read flash messages conditionally.",
     },
@@ -254,6 +283,7 @@ export class EdgeCompletionProvider {
       detail: "Error helper",
       insertText: "@error('${1:field}')",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "error",
       documentation: "Read error messages from errorsBag.",
     },
     {
@@ -262,6 +292,7 @@ export class EdgeCompletionProvider {
       detail: "Input error helper",
       insertText: "@inputError('${1:field}')",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "inputError",
       documentation: "Read validation error messages from inputErrorsBag.",
     },
     {
@@ -270,6 +301,7 @@ export class EdgeCompletionProvider {
       detail: "Authorization check",
       insertText: "@can('${1:permission}')\n\t${2:content}\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "can",
       documentation: "Authorization check in templates.",
     },
     {
@@ -278,6 +310,7 @@ export class EdgeCompletionProvider {
       detail: "Authorization negation",
       insertText: "@cannot('${1:permission}')\n\t${2:content}\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "cannot",
       documentation: "Negated authorization check in templates.",
     },
     {
@@ -286,6 +319,7 @@ export class EdgeCompletionProvider {
       detail: "Embed image in email",
       insertText: "@embedImage('${1:path}')",
       insertTextFormat: InsertTextFormat.Snippet,
+      filterText: "embedImage",
       documentation: "Embed images in emails.",
     },
 
@@ -444,7 +478,8 @@ export class EdgeCompletionProvider {
       label: "request",
       kind: CompletionItemKind.Variable,
       detail: "HTTP request object",
-      documentation: "Reference to the ongoing HTTP request instance when template is rendered using ctx.view.render method",
+      documentation:
+        "Reference to the ongoing HTTP request instance when template is rendered using ctx.view.render method",
     },
     {
       label: "request.url()",
@@ -467,7 +502,8 @@ export class EdgeCompletionProvider {
       label: "auth",
       kind: CompletionItemKind.Variable,
       detail: "Authentication object",
-      documentation: "Reference to ctx.auth property for accessing logged-in user information",
+      documentation:
+        "Reference to ctx.auth property for accessing logged-in user information",
     },
     // Configuration
     {
@@ -509,7 +545,8 @@ export class EdgeCompletionProvider {
       detail: "Translate string",
       insertText: "t('${1:key}')",
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Method for translations contributed by @adonisjs/i18n package",
+      documentation:
+        "Method for translations contributed by @adonisjs/i18n package",
     },
     {
       label: "i18n",
@@ -812,29 +849,34 @@ export class EdgeCompletionProvider {
     return this.edgeDirectives;
   }
 
-  private getDirectiveCompletions(node: any, document: TextDocument, position: Position): CompletionItem[] {
+  private getDirectiveCompletions(
+    node: any,
+    document: TextDocument,
+    position: Position,
+  ): CompletionItem[] {
     // Get the text content to check for specific directive patterns
     const text = document.getText();
     const offset = document.offsetAt(position);
-    
+
     // Check if we're typing after @ symbol (like @component or @button)
     if (offset > 0) {
       const charBefore = text.charAt(offset - 1);
-      if (charBefore === '@') {
+      if (charBefore === "@") {
         // If we just typed @, return all directives starting with @
         return [
-          ...this.edgeDirectives.filter(item => 
-            item.label.startsWith('@') && !item.label.startsWith('@slot')
+          ...this.edgeDirectives.filter(
+            (item) =>
+              item.label.startsWith("@") && !item.label.startsWith("@slot"),
           ),
           // Add component tags as mentioned in documentation
-          ...this.getComponentTagCompletions()
+          ...this.getComponentTagCompletions(),
         ];
       }
     }
-    
+
     return this.edgeDirectives;
   }
-  
+
   private getComponentTagCompletions(): CompletionItem[] {
     return [
       {
@@ -843,7 +885,8 @@ export class EdgeCompletionProvider {
         detail: "Modal component tag",
         insertText: "@modal()\n\t${1:content}\n@end",
         insertTextFormat: InsertTextFormat.Snippet,
-        documentation: "Component as tag from components/modal.edge"
+        filterText: "modal",
+        documentation: "Component as tag from components/modal.edge",
       },
       {
         label: "@form.input",
@@ -851,7 +894,8 @@ export class EdgeCompletionProvider {
         detail: "Form input component tag",
         insertText: "@form.input()",
         insertTextFormat: InsertTextFormat.Snippet,
-        documentation: "Component as tag from form/input.edge"
+        filterText: "form.input",
+        documentation: "Component as tag from form/input.edge",
       },
       {
         label: "@toolTip",
@@ -859,7 +903,8 @@ export class EdgeCompletionProvider {
         detail: "Tooltip component tag",
         insertText: "@toolTip()",
         insertTextFormat: InsertTextFormat.Snippet,
-        documentation: "Component as tag from tool_tip.edge"
+        filterText: "toolTip",
+        documentation: "Component as tag from tool_tip.edge",
       },
       {
         label: "@checkoutForm.input",
@@ -867,8 +912,9 @@ export class EdgeCompletionProvider {
         detail: "Checkout form input component tag",
         insertText: "@checkoutForm.input()",
         insertTextFormat: InsertTextFormat.Snippet,
-        documentation: "Component as tag from checkout_form/input.edge"
-      }
+        filterText: "checkoutForm.input",
+        documentation: "Component as tag from checkout_form/input.edge",
+      },
     ];
   }
 

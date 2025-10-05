@@ -11,14 +11,14 @@ import {
   Position,
   DocumentOnTypeFormattingParams,
   TextEdit,
-} from 'vscode-languageserver/node';
+} from "vscode-languageserver/node";
 
-import { TextDocument } from 'vscode-languageserver-textdocument';
-import { EdgeParser } from './server/parser';
-import { EdgeCompletionProvider } from './completions/completion';
-import { EdgeHoverProvider } from './hovers/hover';
-import { EdgeDefinitionProvider } from './definitions/definition';
-import { AutoClosingPairs } from './utils/auto-closing';
+import { TextDocument } from "vscode-languageserver-textdocument";
+import { EdgeParser } from "./server/parser";
+import { EdgeCompletionProvider } from "./completions/completion";
+import { EdgeHoverProvider } from "./hovers/hover";
+import { EdgeDefinitionProvider } from "./definitions/definition";
+import { AutoClosingPairs } from "./utils/auto-closing";
 
 // Create a connection for the server
 const connection = createConnection(ProposedFeatures.all);
@@ -64,26 +64,26 @@ connection.onInitialize(async (params: InitializeParams) => {
       // Tell the client that this server supports code completion.
       completionProvider: {
         resolveProvider: true,
-        triggerCharacters: ['@', '{', '.', '('],
+        triggerCharacters: ["@", "{", ".", "("],
       },
       hoverProvider: true,
       definitionProvider: true,
       documentOnTypeFormattingProvider: {
-        firstTriggerCharacter: '{',
-        moreTriggerCharacter: ['(', '[', '}', ')', ']'],
+        firstTriggerCharacter: "{",
+        moreTriggerCharacter: ["(", "[", "}", ")", "]"],
       },
       // documentFormattingProvider: false, // Formatting not implemented yet
-    }
+    },
   };
-  
+
   if (hasWorkspaceFolderCapability) {
     result.capabilities.workspace = {
       workspaceFolders: {
-        supported: true
-      }
+        supported: true,
+      },
     };
   }
-  
+
   return result;
 });
 
@@ -93,15 +93,15 @@ connection.onInitialized(() => {
     // For now, we'll use a simpler approach
   }
   if (hasWorkspaceFolderCapability) {
-    connection.workspace.onDidChangeWorkspaceFolders(_event => {
-      connection.console.log('Workspace folder change event received.');
+    connection.workspace.onDidChangeWorkspaceFolders((_event) => {
+      connection.console.log("Workspace folder change event received.");
     });
   }
 });
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
-documents.onDidChangeContent(change => {
+documents.onDidChangeContent((change) => {
   // In a real implementation, you would validate the document here
   // and send diagnostics to the client
   connection.console.log(`Document changed: ${change.document.uri}`);
@@ -137,16 +137,22 @@ connection.onDefinition((params) => {
   return null;
 });
 
-connection.onDocumentOnTypeFormatting((params: DocumentOnTypeFormattingParams) => {
-  const document = documents.get(params.textDocument.uri);
-  if (document) {
-    return AutoClosingPairs.handleAutoClosing(document, params.position, params.ch);
-  }
-  return null;
-});
+connection.onDocumentOnTypeFormatting(
+  (params: DocumentOnTypeFormattingParams) => {
+    const document = documents.get(params.textDocument.uri);
+    if (document) {
+      return AutoClosingPairs.handleAutoClosing(
+        document,
+        params.position,
+        params.ch,
+      );
+    }
+    return null;
+  },
+);
 
-connection.onDidChangeConfiguration(change => {
-  connection.console.log('Configuration changed');
+connection.onDidChangeConfiguration((change) => {
+  connection.console.log("Configuration changed");
   // Revalidate all open text documents
   documents.all().forEach(validateTextDocument);
 });
@@ -156,21 +162,6 @@ function validateTextDocument(textDocument: TextDocument): void {
   // and send diagnostics to the client
   connection.console.log(`Validating document: ${textDocument.uri}`);
 }
-
-// Make the text document manager listen on the connection
-// for open, change and close text document events
-documents.listen(connection);
-
-// Listen on the connection
-connection.listen();
-
-connection.onDocumentOnTypeFormatting((params: DocumentOnTypeFormattingParams) => {
-  const document = documents.get(params.textDocument.uri);
-  if (document) {
-    return AutoClosingPairs.handleAutoClosing(document, params.position, params.ch);
-  }
-  return null;
-});
 
 // Make the text document manager listen on the connection
 // for open, change and close text document events
