@@ -1,6 +1,6 @@
 {
   "name": "edge-language-server",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "A language server for the Edge templating engine.",
   "main": "out/server.js",
   "files": [
@@ -29,6 +29,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "prettier-plugin-edgejs": "^1.0.6",
     "typescript": "^5.9.3",
     "vscode-css-languageservice": "^6.3.7",
     "vscode-html-languageservice": "^5.5.1",
@@ -42,7 +43,7 @@
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.56.0",
     "jest": "^29.7.0",
-    "prettier": "^3.3.2",
+    "prettier": "^3.6.2",
     "ts-jest": "^29.1.5",
     "typescript-eslint": "^7.13.0"
   }

@@ -17,35 +17,49 @@ import {
   SignatureHelpParams,
   SignatureHelp,
   ClientCapabilities,
-} from 'vscode-languageserver/node';
+  DocumentFormattingParams,
+  DocumentRangeFormattingParams,
+  DocumentOnTypeFormattingParams,
+  TextEdit,
+} from "vscode-languageserver/node";
 
-import { TextDocument } from 'vscode-languageserver-textdocument';
-import { EdgeCompletionProvider } from '../completions/completion';
-import { EdgeDefinitionProvider } from '../definitions/definition';
-import { EdgeHoverProvider } from '../hovers/hover';
-import { EdgeParser } from './parser';
-import { EdgeValidator } from './validator';
-import { Logger } from '../utils/logger';
-import { ConfigurationService, EdgeLanguageServerConfiguration } from '../configuration/configuration';
-import { EdgeSemanticTokensProvider, legend } from '../semantic-tokens/semantic-tokens';
-import { EdgeSignatureHelpProvider } from '../signature-helps/signature-help';
-import { DocumentCache } from '../utils/document-cache';
+import { TextDocument } from "vscode-languageserver-textdocument";
+import { EdgeCompletionProvider } from "../completions/completion";
+import { EdgeDefinitionProvider } from "../definitions/definition";
+import { EdgeHoverProvider } from "../hovers/hover";
+import { EdgeParser } from "./parser";
+import { EdgeValidator } from "./validator";
+import { Logger } from "../utils/logger";
+import {
+  ConfigurationService,
+  EdgeLanguageServerConfiguration,
+} from "../configuration/configuration";
+import {
+  EdgeSemanticTokensProvider,
+  legend,
+} from "../semantic-tokens/semantic-tokens";
+import { EdgeSignatureHelpProvider } from "../signature-helps/signature-help";
+import { DocumentCache } from "../utils/document-cache";
+import { EdgeFormattingProvider } from "../formatting/formatter";
 
 export class EdgeLanguageServer {
   private connection = createConnection(ProposedFeatures.all);
-  private documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
-  
+  private documents: TextDocuments<TextDocument> = new TextDocuments(
+    TextDocument,
+  );
+
   private hasConfigurationCapability = false;
   private hasWorkspaceFolderCapability = false;
   private hasDiagnosticRelatedInformationCapability = false;
   private hasSemanticTokensCapability = false;
   private hasSignatureHelpCapability = false;
-  
+  private hasFormattingCapability = false; // Add this
+
   // Services
   private logger!: Logger;
   private configurationService!: ConfigurationService;
   private documentCache!: DocumentCache;
-  
+
   // Providers
   private edgeParser!: EdgeParser;
   private edgeValidator!: EdgeValidator;
@@ -54,6 +68,7 @@ export class EdgeLanguageServer {
   private definitionProvider!: EdgeDefinitionProvider;
   private semanticTokensProvider!: EdgeSemanticTokensProvider;
   private signatureHelpProvider!: EdgeSignatureHelpProvider;
+  private formattingProvider!: EdgeFormattingProvider; // Add this
 
   constructor() {
     this.logger = new Logger(this.connection);
@@ -68,20 +83,26 @@ export class EdgeLanguageServer {
     this.connection.onInitialize((params: InitializeParams) => {
       const capabilities = params.capabilities;
 
-      this.hasConfigurationCapability = !!(capabilities.workspace && !!capabilities.workspace.configuration);
-      this.hasWorkspaceFolderCapability = !!(capabilities.workspace && !!capabilities.workspace.workspaceFolders);
+      this.hasConfigurationCapability = !!(
+        capabilities.workspace && !!capabilities.workspace.configuration
+      );
+      this.hasWorkspaceFolderCapability = !!(
+        capabilities.workspace && !!capabilities.workspace.workspaceFolders
+      );
       this.hasDiagnosticRelatedInformationCapability = !!(
         capabilities.textDocument &&
         capabilities.textDocument.publishDiagnostics &&
         capabilities.textDocument.publishDiagnostics.relatedInformation
       );
       this.hasSemanticTokensCapability = !!(
-        capabilities.textDocument &&
-        capabilities.textDocument.semanticTokens
+        capabilities.textDocument && capabilities.textDocument.semanticTokens
       );
       this.hasSignatureHelpCapability = !!(
-        capabilities.textDocument &&
-        capabilities.textDocument.signatureHelp
+        capabilities.textDocument && capabilities.textDocument.signatureHelp
+      );
+      this.hasFormattingCapability = !!(
+        // Add this
+        (capabilities.textDocument && capabilities.textDocument.formatting)
       );
 
       const result: InitializeResult = {
@@ -89,11 +110,17 @@ export class EdgeLanguageServer {
           textDocumentSync: TextDocumentSyncKind.Incremental,
           completionProvider: {
             resolveProvider: true,
-            triggerCharacters: ['@', '{', '.', '('],
+            triggerCharacters: ["@", "{", ".", "("],
           },
           hoverProvider: true,
           definitionProvider: true,
-          documentFormattingProvider: false, // We'll add this later
+          // Add formatting capabilities
+          documentFormattingProvider: true,
+          documentRangeFormattingProvider: true,
+          documentOnTypeFormattingProvider: {
+            firstTriggerCharacter: "}",
+            moreTriggerCharacter: ["\n", ">", "@"],
+          },
         },
       };
 
@@ -101,15 +128,15 @@ export class EdgeLanguageServer {
       if (this.hasSemanticTokensCapability) {
         result.capabilities.semanticTokensProvider = {
           full: true,
-          legend: legend
+          legend: legend,
         };
       }
 
       // Add signature help capability if supported
       if (this.hasSignatureHelpCapability) {
         result.capabilities.signatureHelpProvider = {
-          triggerCharacters: ['(', ','],
-          retriggerCharacters: [')']
+          triggerCharacters: ["(", ","],
+          retriggerCharacters: [")"],
         };
       }
 
@@ -127,7 +154,7 @@ export class EdgeLanguageServer {
     this.connection.onInitialized(() => {
       if (this.hasWorkspaceFolderCapability) {
         this.connection.workspace.onDidChangeWorkspaceFolders((_event) => {
-          this.logger.info('Workspace folder change event received.');
+          this.logger.info("Workspace folder change event received.");
         });
       }
     });
@@ -141,12 +168,21 @@ export class EdgeLanguageServer {
       this.completionProvider = new EdgeCompletionProvider(this.edgeParser);
       this.hoverProvider = new EdgeHoverProvider(this.edgeParser);
       this.definitionProvider = new EdgeDefinitionProvider(this.edgeParser);
-      this.semanticTokensProvider = new EdgeSemanticTokensProvider(this.edgeParser);
-      this.signatureHelpProvider = new EdgeSignatureHelpProvider(this.edgeParser);
-      
-      this.logger.info('Edge language server providers initialized successfully');
+      this.semanticTokensProvider = new EdgeSemanticTokensProvider(
+        this.edgeParser,
+      );
+      this.signatureHelpProvider = new EdgeSignatureHelpProvider(
+        this.edgeParser,
+      );
+      this.formattingProvider = new EdgeFormattingProvider(); // Add this
+
+      this.logger.info(
+        "Edge language server providers initialized successfully",
+      );
     } catch (error) {
-      this.logger.error(`Failed to initialize Edge language server providers: ${error}`);
+      this.logger.error(
+        `Failed to initialize Edge language server providers: ${error}`,
+      );
       throw error;
     }
   }
@@ -166,95 +202,183 @@ export class EdgeLanguageServer {
     });
 
     // Completion provider
-    this.connection.onCompletion(async (textDocumentPosition: TextDocumentPositionParams): Promise<CompletionItem[]> => {
-      const document = this.documents.get(textDocumentPosition.textDocument.uri);
-      if (!document) return [];
+    this.connection.onCompletion(
+      async (
+        textDocumentPosition: TextDocumentPositionParams,
+      ): Promise<CompletionItem[]> => {
+        const document = this.documents.get(
+          textDocumentPosition.textDocument.uri,
+        );
+        if (!document) return [];
 
-      try {
-        return this.completionProvider.provideCompletions(document, textDocumentPosition.position);
-      } catch (error) {
-        this.logger.error(`Completion error: ${error}`);
-        return [];
-      }
-    });
+        try {
+          return this.completionProvider.provideCompletions(
+            document,
+            textDocumentPosition.position,
+          );
+        } catch (error) {
+          this.logger.error(`Completion error: ${error}`);
+          return [];
+        }
+      },
+    );
 
     // Hover provider
-    this.connection.onHover(async (params: TextDocumentPositionParams): Promise<Hover | null> => {
-      const document = this.documents.get(params.textDocument.uri);
-      if (!document) return null;
+    this.connection.onHover(
+      async (params: TextDocumentPositionParams): Promise<Hover | null> => {
+        const document = this.documents.get(params.textDocument.uri);
+        if (!document) return null;
 
-      try {
-        return this.hoverProvider.provideHover(document, params.position);
-      } catch (error) {
-        this.logger.error(`Hover error: ${error}`);
-        return null;
-      }
-    });
+        try {
+          return this.hoverProvider.provideHover(document, params.position);
+        } catch (error) {
+          this.logger.error(`Hover error: ${error}`);
+          return null;
+        }
+      },
+    );
 
     // Definition provider
-    this.connection.onDefinition(async (params: TextDocumentPositionParams): Promise<Definition | null> => {
-      const document = this.documents.get(params.textDocument.uri);
-      if (!document) return null;
+    this.connection.onDefinition(
+      async (
+        params: TextDocumentPositionParams,
+      ): Promise<Definition | null> => {
+        const document = this.documents.get(params.textDocument.uri);
+        if (!document) return null;
 
-      try {
-        return this.definitionProvider.provideDefinition(document, params.position);
-      } catch (error) {
-        this.logger.error(`Definition error: ${error}`);
-        return null;
-      }
-    });
+        try {
+          return this.definitionProvider.provideDefinition(
+            document,
+            params.position,
+          );
+        } catch (error) {
+          this.logger.error(`Definition error: ${error}`);
+          return null;
+        }
+      },
+    );
+
+    // Add formatting handlers
+    this.connection.onDocumentFormatting(
+      async (params: DocumentFormattingParams): Promise<TextEdit[]> => {
+        const document = this.documents.get(params.textDocument.uri);
+        if (!document) return [];
+
+        try {
+          return await this.formattingProvider.formatDocument(
+            document,
+            params.options,
+          );
+        } catch (error) {
+          this.logger.error(`Document formatting error: ${error}`);
+          return [];
+        }
+      },
+    );
+
+    this.connection.onDocumentRangeFormatting(
+      async (params: DocumentRangeFormattingParams): Promise<TextEdit[]> => {
+        const document = this.documents.get(params.textDocument.uri);
+        if (!document) return [];
+
+        try {
+          return await this.formattingProvider.formatRange(
+            document,
+            params.range,
+            params.options,
+          );
+        } catch (error) {
+          this.logger.error(`Range formatting error: ${error}`);
+          return [];
+        }
+      },
+    );
+
+    this.connection.onDocumentOnTypeFormatting(
+      async (params: DocumentOnTypeFormattingParams): Promise<TextEdit[]> => {
+        const document = this.documents.get(params.textDocument.uri);
+        if (!document) return [];
+
+        try {
+          return await this.formattingProvider.formatOnType(
+            document,
+            params.position,
+            params.ch,
+            params.options,
+          );
+        } catch (error) {
+          this.logger.error(`On-type formatting error: ${error}`);
+          return [];
+        }
+      },
+    );
 
     // Semantic tokens provider
     if (this.hasSemanticTokensCapability) {
       this.connection.onRequest(
-        'textDocument/semanticTokens/full',
-        async (params: SemanticTokensParams): Promise<SemanticTokens | null> => {
+        "textDocument/semanticTokens/full",
+        async (
+          params: SemanticTokensParams,
+        ): Promise<SemanticTokens | null> => {
           const document = this.documents.get(params.textDocument.uri);
           if (!document) return null;
 
           try {
-            return await this.semanticTokensProvider.provideSemanticTokens(document);
+            return await this.semanticTokensProvider.provideSemanticTokens(
+              document,
+            );
           } catch (error) {
             this.logger.error(`Semantic tokens error: ${error}`);
             return null;
           }
-        }
+        },
       );
     }
 
     // Signature help provider
     if (this.hasSignatureHelpCapability) {
-      this.connection.onSignatureHelp((params: SignatureHelpParams): SignatureHelp | null => {
-        const document = this.documents.get(params.textDocument.uri);
-        if (!document) return null;
+      this.connection.onSignatureHelp(
+        (params: SignatureHelpParams): SignatureHelp | null => {
+          const document = this.documents.get(params.textDocument.uri);
+          if (!document) return null;
 
-        try {
-          return this.signatureHelpProvider.provideSignatureHelp(document, params.position);
-        } catch (error) {
-          this.logger.error(`Signature help error: ${error}`);
-          return null;
-        }
-      });
+          try {
+            return this.signatureHelpProvider.provideSignatureHelp(
+              document,
+              params.position,
+            );
+          } catch (error) {
+            this.logger.error(`Signature help error: ${error}`);
+            return null;
+          }
+        },
+      );
     }
 
     // Configuration change handler
     this.connection.onDidChangeConfiguration((change) => {
-      this.logger.info('Configuration changed');
+      this.logger.info("Configuration changed");
       // Revalidate all open text documents
       this.documents.all().forEach(this.validateEdgeDocument.bind(this));
     });
   }
 
-  private async validateEdgeDocument(textDocument: TextDocument): Promise<void> {
+  private async validateEdgeDocument(
+    textDocument: TextDocument,
+  ): Promise<void> {
     const text = textDocument.getText();
     const diagnostics: Diagnostic[] = [];
 
     try {
-      const ast: any = await this.documentCache.getTree(textDocument, this.edgeParser);
+      const ast: any = await this.documentCache.getTree(
+        textDocument,
+        this.edgeParser,
+      );
       const validationErrors = this.edgeValidator.validate(ast, textDocument);
       diagnostics.push(...validationErrors);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown parse error';
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown parse error";
       diagnostics.push({
         severity: DiagnosticSeverity.Error,
         range: {
@@ -262,7 +386,7 @@ export class EdgeLanguageServer {
           end: { line: 0, character: Number.MAX_VALUE },
         },
         message: `Parse error: ${errorMessage}`,
-        source: 'edge',
+        source: "edge",
       });
     }
 
