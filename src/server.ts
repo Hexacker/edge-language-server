@@ -8,7 +8,9 @@ import {
   CompletionItem,
   Hover,
   Definition,
-  Position
+  Position,
+  DocumentOnTypeFormattingParams,
+  TextEdit,
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -16,6 +18,7 @@ import { EdgeParser } from './server/parser';
 import { EdgeCompletionProvider } from './completions/completion';
 import { EdgeHoverProvider } from './hovers/hover';
 import { EdgeDefinitionProvider } from './definitions/definition';
+import { AutoClosingPairs } from './utils/auto-closing';
 
 // Create a connection for the server
 const connection = createConnection(ProposedFeatures.all);
@@ -65,6 +68,10 @@ connection.onInitialize(async (params: InitializeParams) => {
       },
       hoverProvider: true,
       definitionProvider: true,
+      documentOnTypeFormattingProvider: {
+        firstTriggerCharacter: '{',
+        moreTriggerCharacter: ['(', '[', '}', ')', ']'],
+      },
       // documentFormattingProvider: false, // Formatting not implemented yet
     }
   };
@@ -130,6 +137,14 @@ connection.onDefinition((params) => {
   return null;
 });
 
+connection.onDocumentOnTypeFormatting((params: DocumentOnTypeFormattingParams) => {
+  const document = documents.get(params.textDocument.uri);
+  if (document) {
+    return AutoClosingPairs.handleAutoClosing(document, params.position, params.ch);
+  }
+  return null;
+});
+
 connection.onDidChangeConfiguration(change => {
   connection.console.log('Configuration changed');
   // Revalidate all open text documents
@@ -141,6 +156,21 @@ function validateTextDocument(textDocument: TextDocument): void {
   // and send diagnostics to the client
   connection.console.log(`Validating document: ${textDocument.uri}`);
 }
+
+// Make the text document manager listen on the connection
+// for open, change and close text document events
+documents.listen(connection);
+
+// Listen on the connection
+connection.listen();
+
+connection.onDocumentOnTypeFormatting((params: DocumentOnTypeFormattingParams) => {
+  const document = documents.get(params.textDocument.uri);
+  if (document) {
+    return AutoClosingPairs.handleAutoClosing(document, params.position, params.ch);
+  }
+  return null;
+});
 
 // Make the text document manager listen on the connection
 // for open, change and close text document events

@@ -1,0 +1,110 @@
+// Test file for EdgeJS Language Server improvements
+
+// Test all the new completions that were added
+@if(condition)
+    Content
+@elseif(condition)
+    Content
+@else
+    Content
+@end
+
+@each(item in items)
+    {{ item.name }}
+@end
+
+@each((item, index) in items)
+    {{ index }}: {{ item.name }}
+@end
+
+@component('components/button')
+    Content
+@end
+
+@!component('components/button')
+
+@slot('name')
+    Content
+@end
+
+@include('partials/header')
+@includeIf(condition, 'partials/content')
+
+@extends('layouts/app')
+@section('content')
+    Content
+@endsection
+
+@yield('content')
+
+{{-- This is a comment --}}
+
+// New AdonisJS helpers
+{{ request.url() }}
+{{ request.input('param', 'default') }}
+{{ auth }}
+{{ config('app.name') }}
+{{ session('key') }}
+{{ old('field') }}
+{{ t('message.key') }}
+{{ i18n.formatCurrency(100, { currency: 'USD' }) }}
+{{ asset('path/to/asset') }}
+{{ app.getEnvironment() }}
+{{ embedImage('path/to/image') }}
+
+// New HTML helpers
+{{ html.escape(content) }}
+{{ html.safe(content) }}
+{{ html.classNames(classes) }}
+{{ html.attrs(attributes) }}
+
+// New text processing helpers
+{{ nl2br(text) }}
+{{ truncate(text, 100) }}
+{{ excerpt(text, 100) }}
+
+// New string helpers
+{{ camelCase('hello-world') }}
+{{ snakeCase('hello-world') }}
+{{ dashCase('HelloWorld') }}
+{{ pascalCase('hello-world') }}
+{{ titleCase('hello-world') }}
+{{ sentenceCase('hello-world') }}
+
+// New props helpers
+{{ $props.toAttrs() }}
+{{ $props.merge(defaults) }}
+{{ $props.only(['key1', 'key2']) }}
+{{ $props.except(['key1', 'key2']) }}
+{{ $props.get('key') }}
+
+// New slots helpers
+{{ $slots.main() }}
+{{ $slots.header() }}
+{{ $slots.content() }}
+{{ $slots.footer() }}
+
+// Directives
+@svg('path/to/file')
+@debugger
+@let(variable = value)
+@assign(variable = value)
+@set(variable = value)
+@vite('resources/css/app.css')
+@viteReactRefresh
+@flashMessage('key')
+@error('field')
+@inputError('field')
+@can('permission')
+    Content
+@end
+@cannot('permission')
+    Content
+@end
+@embedImage('path/to/image')
+@embedImageData(data)
+
+// Test bracket auto-closing
+// When typing '{' it should auto-close with '}'
+// When typing '({' it should auto-close with ')}'
+// When typing '[(]' it should auto-close with '])]'

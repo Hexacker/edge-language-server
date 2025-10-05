@@ -58,13 +58,32 @@ export class EdgeCompletionProvider {
       documentation:
         "Loops over iterable data and renders content for each item.",
     },
+    {
+      label: "@each",
+      kind: CompletionItemKind.Keyword,
+      detail: "Loop with index directive",
+      insertText: "@each((${1:item}, ${2:index}) in ${3:items})\n\t${4:content}\n@end",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation:
+        "Loops over iterable data with index and renders content for each item.",
+    },
+
+    // Loop fallback directive
+    {
+      label: "@else",
+      kind: CompletionItemKind.Keyword,
+      detail: "Loop fallback directive",
+      insertText: "@else\n\t${1:content}",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Provides fallback content when the collection is empty.",
+    },
 
     // Component and template directives
     {
       label: "@component",
       kind: CompletionItemKind.Function,
       detail: "Include component",
-      insertText: "@component('${1:name}')\n\t${2:content}\n@endcomponent",
+      insertText: "@component('${1:name}')\n\t${2:content}\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
       documentation: "Include a reusable component.",
     },
@@ -77,12 +96,36 @@ export class EdgeCompletionProvider {
       documentation: "Include a component inline without a block.",
     },
     {
+      label: "@!component",
+      kind: CompletionItemKind.Function,
+      detail: "Inline component with props",
+      insertText: "@!component('${1:name}', { ${2:prop}: ${3:value} })",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Include a component inline with props.",
+    },
+    {
       label: "@slot",
       kind: CompletionItemKind.Function,
       detail: "Define slot",
       insertText: "@slot('${1:name}')\n\t${2:content}\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
       documentation: "Define a named slot in a component.",
+    },
+    {
+      label: "@slot",
+      kind: CompletionItemKind.Function,
+      detail: "Main slot",
+      insertText: "@slot\n\t${1:content}\n@end",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Define the main slot in a component.",
+    },
+    {
+      label: "@!slot",
+      kind: CompletionItemKind.Function,
+      detail: "Auto-closed slot",
+      insertText: "@!slot('${1:name}', '${2:default_content}')",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Define a named slot with default content.",
     },
     {
       label: "@inject",
@@ -108,6 +151,30 @@ export class EdgeCompletionProvider {
       insertTextFormat: InsertTextFormat.Snippet,
       documentation: "Include a template file only if a condition is true.",
     },
+    {
+      label: "@extends",
+      kind: CompletionItemKind.Function,
+      detail: "Extend layout template",
+      insertText: "@extends('${1:layout}')",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Extend a layout template.",
+    },
+    {
+      label: "@section",
+      kind: CompletionItemKind.Function,
+      detail: "Define template section",
+      insertText: "@section('${1:name}')\n\t${2:content}\n@end",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Define a named section in a template.",
+    },
+    {
+      label: "@yield",
+      kind: CompletionItemKind.Function,
+      detail: "Yield section content",
+      insertText: "@yield('${1:name}')",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Yield content from a named section.",
+    },
 
     // Utility directives
     {
@@ -118,7 +185,22 @@ export class EdgeCompletionProvider {
       insertTextFormat: InsertTextFormat.Snippet,
       documentation: "Evaluate a JavaScript expression.",
     },
-
+    {
+      label: "@set",
+      kind: CompletionItemKind.Variable,
+      detail: "Set variable",
+      insertText: "@set(${1:name} = ${2:value})",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Set a variable value.",
+    },
+    {
+      label: "@vite",
+      kind: CompletionItemKind.Function,
+      detail: "Vite asset",
+      insertText: "@vite('${1:path}')",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Handle Vite assets.",
+    },
     {
       label: "@svg",
       kind: CompletionItemKind.Function,
@@ -151,20 +233,60 @@ export class EdgeCompletionProvider {
       documentation: "Assign a value to a variable.",
     },
     {
-      label: "@set",
-      kind: CompletionItemKind.Variable,
-      detail: "Set variable",
-      insertText: "@set(${1:name} = ${2:value})",
+      label: "@viteReactRefresh",
+      kind: CompletionItemKind.Function,
+      detail: "Vite React refresh",
+      insertText: "@viteReactRefresh",
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Set a variable value.",
+      documentation: "Enable React HMR in development.",
     },
     {
-      label: "@vite",
+      label: "@flashMessage",
       kind: CompletionItemKind.Function,
-      detail: "Vite asset",
-      insertText: "@vite('${1:path}')",
+      detail: "Flash message helper",
+      insertText: "@flashMessage('${1:key}')",
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Handle Vite assets.",
+      documentation: "Read flash messages conditionally.",
+    },
+    {
+      label: "@error",
+      kind: CompletionItemKind.Function,
+      detail: "Error helper",
+      insertText: "@error('${1:field}')",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Read error messages from errorsBag.",
+    },
+    {
+      label: "@inputError",
+      kind: CompletionItemKind.Function,
+      detail: "Input error helper",
+      insertText: "@inputError('${1:field}')",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Read validation error messages from inputErrorsBag.",
+    },
+    {
+      label: "@can",
+      kind: CompletionItemKind.Function,
+      detail: "Authorization check",
+      insertText: "@can('${1:permission}')\n\t${2:content}\n@end",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Authorization check in templates.",
+    },
+    {
+      label: "@cannot",
+      kind: CompletionItemKind.Function,
+      detail: "Authorization negation",
+      insertText: "@cannot('${1:permission}')\n\t${2:content}\n@end",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Negated authorization check in templates.",
+    },
+    {
+      label: "@embedImage",
+      kind: CompletionItemKind.Function,
+      detail: "Embed image in email",
+      insertText: "@embedImage('${1:path}')",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Embed images in emails.",
     },
 
     // Auto-closing pairs
@@ -203,13 +325,45 @@ export class EdgeCompletionProvider {
       kind: CompletionItemKind.Variable,
       detail: "Component props object",
       documentation:
-        "Access component props. Methods: merge(), toAttrs(), only(), except()",
+        "Access component props. Methods: merge(), toAttrs(), only(), except(), get()",
     },
     {
       label: "$slots",
       kind: CompletionItemKind.Variable,
       detail: "Component slots object",
       documentation: "Access component slots (e.g., $slots.main())",
+    },
+    {
+      label: "$slots.main",
+      kind: CompletionItemKind.Method,
+      detail: "Main slot content",
+      insertText: "$slots.main()",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Render the main slot content",
+    },
+    {
+      label: "$slots.header",
+      kind: CompletionItemKind.Method,
+      detail: "Header slot content",
+      insertText: "$slots.header()",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Render the header slot content",
+    },
+    {
+      label: "$slots.content",
+      kind: CompletionItemKind.Method,
+      detail: "Content slot content",
+      insertText: "$slots.content()",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Render the content slot",
+    },
+    {
+      label: "$slots.footer",
+      kind: CompletionItemKind.Method,
+      detail: "Footer slot content",
+      insertText: "$slots.footer()",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Render the footer slot",
     },
     {
       label: "$context",
@@ -285,39 +439,44 @@ export class EdgeCompletionProvider {
       insertText: "signedRoute('${1:routeName}')",
       insertTextFormat: InsertTextFormat.Snippet,
     },
-    // Internationalization helper
+    // Request helper
     {
-      label: "t",
-      kind: CompletionItemKind.Function,
-      detail: "Translate string",
-      insertText: "t('${1:key}')",
-      insertTextFormat: InsertTextFormat.Snippet,
-    },
-    // Flash messages
-    {
-      label: "flash",
+      label: "request",
       kind: CompletionItemKind.Variable,
-      detail: "Flash messages object",
+      detail: "HTTP request object",
+      documentation: "Reference to the ongoing HTTP request instance when template is rendered using ctx.view.render method",
     },
-    // Asset handling
     {
-      label: "asset",
-      kind: CompletionItemKind.Function,
-      detail: "Generate asset URL",
-      insertText: "asset('${1:path}')",
+      label: "request.url()",
+      kind: CompletionItemKind.Method,
+      detail: "Get request URL",
+      insertText: "request.url()",
       insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Get the request URL",
     },
-    // Authentication
+    {
+      label: "request.input",
+      kind: CompletionItemKind.Method,
+      detail: "Get input value from request",
+      insertText: "request.input('${1:key}', ${2:defaultValue})",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Get input value from request",
+    },
+    // Authentication helper
     {
       label: "auth",
       kind: CompletionItemKind.Variable,
       detail: "Authentication object",
+      documentation: "Reference to ctx.auth property for accessing logged-in user information",
     },
     // Configuration
     {
       label: "config",
       kind: CompletionItemKind.Variable,
       detail: "Configuration object",
+      insertText: "config('${1:key}')",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Helper function to reference configuration values",
     },
     // Session
     {
@@ -326,12 +485,86 @@ export class EdgeCompletionProvider {
       detail: "Session object",
       insertText: "session('${1:key}')",
       insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Read-only copy of the session object",
     },
-    // Request
+    // Flash messages
     {
-      label: "request",
+      label: "flashMessages",
       kind: CompletionItemKind.Variable,
-      detail: "HTTP request object",
+      detail: "Session flash messages",
+      documentation: "Read-only copy of session flash messages",
+    },
+    {
+      label: "old",
+      kind: CompletionItemKind.Function,
+      detail: "Get old input value",
+      insertText: "old('${1:key}')",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Shorthand for the flashMessages.get method",
+    },
+    // Internationalization helpers
+    {
+      label: "t",
+      kind: CompletionItemKind.Function,
+      detail: "Translate string",
+      insertText: "t('${1:key}')",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Method for translations contributed by @adonisjs/i18n package",
+    },
+    {
+      label: "i18n",
+      kind: CompletionItemKind.Variable,
+      detail: "I18n instance",
+      documentation: "Reference to an instance of the I18n class",
+    },
+    {
+      label: "i18n.formatCurrency",
+      kind: CompletionItemKind.Method,
+      detail: "Format currency value",
+      insertText: "i18n.formatCurrency(${1:value}, { currency: '${2:USD}' })",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Format currency using I18n instance",
+    },
+    // Asset helper
+    {
+      label: "asset",
+      kind: CompletionItemKind.Function,
+      detail: "Generate asset URL",
+      insertText: "asset('${1:path}')",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Resolves the URL of an asset processed by Vite",
+    },
+    // Application helper
+    {
+      label: "app",
+      kind: CompletionItemKind.Variable,
+      detail: "Application instance",
+      documentation: "Reference to the Application instance",
+    },
+    {
+      label: "app.getEnvironment",
+      kind: CompletionItemKind.Method,
+      detail: "Get application environment",
+      insertText: "app.getEnvironment()",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Get the application environment",
+    },
+    // Mail helpers
+    {
+      label: "embedImage",
+      kind: CompletionItemKind.Function,
+      detail: "Embed image in email",
+      insertText: "embedImage('${1:path}')",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Helper for embedding images in emails",
+    },
+    {
+      label: "embedImageData",
+      kind: CompletionItemKind.Function,
+      detail: "Embed image data in email",
+      insertText: "embedImageData(${1:data})",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Helper for embedding image data in emails",
     },
     // Response
     {
@@ -406,6 +639,14 @@ export class EdgeCompletionProvider {
       insertTextFormat: InsertTextFormat.Snippet,
       documentation: "Exclude specified props from props object",
     },
+    {
+      label: "$props.get",
+      kind: CompletionItemKind.Method,
+      detail: "Get property value",
+      insertText: "$props.get('${1:key}')",
+      insertTextFormat: InsertTextFormat.Snippet,
+      documentation: "Get a property value from props",
+    },
   ];
 
   private textProcessingHelpers: CompletionItem[] = [
@@ -434,31 +675,31 @@ export class EdgeCompletionProvider {
 
   private htmlHelpers: CompletionItem[] = [
     {
-      label: "escape",
+      label: "html.escape",
       kind: CompletionItemKind.Function,
       detail: "Escape HTML",
-      insertText: "escape(${1:html})",
+      insertText: "html.escape(${1:html})",
       insertTextFormat: InsertTextFormat.Snippet,
     },
     {
-      label: "safe",
+      label: "html.safe",
       kind: CompletionItemKind.Function,
       detail: "Mark as safe HTML",
-      insertText: "safe(${1:html})",
+      insertText: "html.safe(${1:html})",
       insertTextFormat: InsertTextFormat.Snippet,
     },
     {
-      label: "classNames",
+      label: "html.classNames",
       kind: CompletionItemKind.Function,
       detail: "Generate CSS class names",
-      insertText: "classNames(${1:classes})",
+      insertText: "html.classNames(${1:classes})",
       insertTextFormat: InsertTextFormat.Snippet,
     },
     {
-      label: "attrs",
+      label: "html.attrs",
       kind: CompletionItemKind.Function,
       detail: "Generate HTML attributes",
-      insertText: "attrs(${1:attributes})",
+      insertText: "html.attrs(${1:attributes})",
       insertTextFormat: InsertTextFormat.Snippet,
     },
   ];
@@ -560,14 +801,75 @@ export class EdgeCompletionProvider {
     }
 
     if (this.isInsideDirective(node)) {
-      return this.edgeDirectives;
+      return this.getDirectiveCompletions(node, document, position);
     }
 
     if (this.isInsideString(node)) {
       return this.getPathCompletions();
     }
 
+    // If we're not in a specific context, provide general Edge directives
     return this.edgeDirectives;
+  }
+
+  private getDirectiveCompletions(node: any, document: TextDocument, position: Position): CompletionItem[] {
+    // Get the text content to check for specific directive patterns
+    const text = document.getText();
+    const offset = document.offsetAt(position);
+    
+    // Check if we're typing after @ symbol (like @component or @button)
+    if (offset > 0) {
+      const charBefore = text.charAt(offset - 1);
+      if (charBefore === '@') {
+        // If we just typed @, return all directives starting with @
+        return [
+          ...this.edgeDirectives.filter(item => 
+            item.label.startsWith('@') && !item.label.startsWith('@slot')
+          ),
+          // Add component tags as mentioned in documentation
+          ...this.getComponentTagCompletions()
+        ];
+      }
+    }
+    
+    return this.edgeDirectives;
+  }
+  
+  private getComponentTagCompletions(): CompletionItem[] {
+    return [
+      {
+        label: "@modal",
+        kind: CompletionItemKind.Function,
+        detail: "Modal component tag",
+        insertText: "@modal()\n\t${1:content}\n@end",
+        insertTextFormat: InsertTextFormat.Snippet,
+        documentation: "Component as tag from components/modal.edge"
+      },
+      {
+        label: "@form.input",
+        kind: CompletionItemKind.Function,
+        detail: "Form input component tag",
+        insertText: "@form.input()",
+        insertTextFormat: InsertTextFormat.Snippet,
+        documentation: "Component as tag from form/input.edge"
+      },
+      {
+        label: "@toolTip",
+        kind: CompletionItemKind.Function,
+        detail: "Tooltip component tag",
+        insertText: "@toolTip()",
+        insertTextFormat: InsertTextFormat.Snippet,
+        documentation: "Component as tag from tool_tip.edge"
+      },
+      {
+        label: "@checkoutForm.input",
+        kind: CompletionItemKind.Function,
+        detail: "Checkout form input component tag",
+        insertText: "@checkoutForm.input()",
+        insertTextFormat: InsertTextFormat.Snippet,
+        documentation: "Component as tag from checkout_form/input.edge"
+      }
+    ];
   }
 
   private isInsideInterpolation(node: any): boolean {

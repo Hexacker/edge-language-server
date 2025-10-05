@@ -335,25 +335,6 @@ Handles Vite assets.
         };
 
       // Other directives
-      case "section_directive":
-        return {
-          contents: {
-            kind: MarkupKind.Markdown,
-            value: `
-**@section Directive**
-
-Defines a named section.
-
-\`\`\`edge
-@section('content')
-  <h1>Page Content</h1>
-@end
-\`\`\`
-`,
-          },
-          range,
-        };
-
       case "extends_directive":
         return {
           contents: {
@@ -365,6 +346,42 @@ Extends a layout template.
 
 \`\`\`edge
 @extends('layouts.app')
+\`\`\`
+`,
+          },
+          range,
+        };
+
+      case "section_directive":
+        return {
+          contents: {
+            kind: MarkupKind.Markdown,
+            value: `
+**@section Directive**
+
+Defines a named section in a layout.
+
+\`\`\`edge
+@section('content')
+  <h1>Page Content</h1>
+@endsection
+\`\`\`
+`,
+          },
+          range,
+        };
+
+      case "yield_directive":
+        return {
+          contents: {
+            kind: MarkupKind.Markdown,
+            value: `
+**@yield Directive**
+
+Yields content from a named section.
+
+\`\`\`edge
+@yield('content')
 \`\`\`
 `,
           },
