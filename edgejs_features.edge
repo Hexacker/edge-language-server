@@ -1,0 +1,304 @@
+{{-- EdgeJS Language Features Reference for Language Server Development --}}
+{{-- Generated: October 2025 --}}
+{{-- Sources: edgejs.dev and docs.adonisjs.com (v6+) --}}
+
+{{-- ===================================================================== --}}
+{{-- CORE SYNTAX PRIMITIVES --}}
+{{-- ===================================================================== --}}
+
+{{-- Expression Delimiters --}}
+{{ "Double curly braces for escaped output" }}
+{{{ "Triple curly braces for unescaped HTML" }}}
+{{-- Comments: single-line and multi-line --}}
+@{{ "Escaped curly braces for literal output" }}
+
+{{-- Tag Prefix Symbols --}}
+@if(true)
+  @ {{-- Tag prefix symbol --}}
+@end
+
+@!component('self-closing')
+  @! {{-- Self-closing block tag prefix --}}
+
+@let(example = 'value')
+   {{-- Newline swallow suffix --}}
+
+{{-- ===================================================================== --}}
+{{-- BLOCK-LEVEL TAGS --}}
+{{-- ===================================================================== --}}
+
+{{-- Conditionals --}}
+@if(condition)
+  @if @elseif @else @unless
+@elseif(anotherCondition)
+  Block-level conditional tags
+@else
+  Fallback content
+@end
+
+@unless(condition)
+  Inverse conditional
+@end
+
+{{-- Loops --}}
+@each(item in items)
+  @each - Array iteration
+@else
+  @else - Empty loop fallback
+@end
+
+@each((item, index) in items)
+  @each - With index
+@end
+
+@each((value, key) in object)
+  @each - Object iteration
+@end
+
+{{-- Components & Layouts --}}
+@component('component-name', { prop: 'value' })
+  @component - Component inclusion
+@end
+
+@layout('layout-name', props)
+  @layout - Layout definition
+@end
+
+{{-- Slots --}}
+@slot('slot-name')
+  @slot - Named slot definition
+@end
+
+@slot('scoped-slot', scopeData)
+  @slot - Scoped slot with data
+@endslot
+
+{{-- Stacks --}}
+@stack('stack-name')
+
+@pushTo('stack-name')
+  @pushTo @pushOnceTo - Stack content
+@end
+
+@pushOnceTo('unique-stack')
+  Unique stack content
+@end
+
+{{-- ===================================================================== --}}
+{{-- INLINE TAGS --}}
+{{-- ===================================================================== --}}
+
+@include('partial-name')
+@include('partial-name', { data: 'value' })
+
+@let(variable = 'value')
+@let(object = { key: 'value', nested: { prop: true } })
+
+@debugger
+@eval(expression)
+
+{{-- Self-Closing Tags --}}
+@!component('component', props)
+@!include('partial')
+
+{{-- ===================================================================== --}}
+{{-- ADONISJS-SPECIFIC TAGS (v6+) --}}
+{{-- ===================================================================== --}}
+
+{{-- Flash Messages --}}
+@flashMessage('notification')
+  {{ $message.type }} - {{ $message.content }}
+@end
+
+@error('validation-error')
+  {{ $message }}
+@end
+
+@inputError('field-name')
+  @each(message in $messages)
+    {{ message }}
+  @end
+@end
+
+{{-- Authorization --}}
+@can('edit-post', post)
+  @can @cannot - Authorization checks
+@end
+
+@cannot('delete-user', user)
+  Access denied content
+@end
+
+{{-- Vite Integration --}}
+@vite(['resources/js/app.js'])
+@vite(['resources/css/app.css', 'resources/js/app.js'], { defer: true })
+@viteReactRefresh()
+
+{{-- ===================================================================== --}}
+{{-- BUILT-IN HELPERS AND METHODS --}}
+{{-- ===================================================================== --}}
+
+{{-- Template State Access --}}
+{{ $props }} {{-- Component properties object --}}
+{{ $slots }} {{-- Component slots object --}}
+{{ $context }} {{-- Template context --}}
+{{ state }} {{-- Template state --}}
+
+{{-- Props Methods --}}
+{{ $props.except(['excluded']) }}
+{{ $props.only(['included']) }}
+{{ $props.merge({ additional: 'prop' }) }}
+{{ $props.toAttrs() }}
+
+{{-- Slots Methods --}}
+{{ $slots.main() }}
+{{ $slots.namedSlot() }}
+{{ await $slots.asyncSlot() }}
+{{ await $slots.dataSlot({ param: 'value' }) }}
+
+{{-- HTML Helpers --}}
+{{{ html.safe('<strong>Safe HTML</strong>') }}}
+{{ inspect(debugValue) }}
+
+{{-- ===================================================================== --}}
+{{-- ADONISJS CONTEXT HELPERS --}}
+{{-- ===================================================================== --}}
+
+{{-- HTTP Context --}}
+{{ request.url() }}
+{{ request.input('field') }}
+{{ request.method() }}
+{{ request.header('content-type') }}
+
+{{-- Routing --}}
+{{ route('posts.show', [post.id]) }}
+{{ route('users.edit', { id: user.id }, { qs: { tab: 'settings' } }) }}
+{{ signedRoute('unsubscribe', [user.id], { expiresIn: '7 days' }) }}
+
+{{-- Application --}}
+{{ app.getEnvironment() }}
+{{ app.inProduction }}
+{{ app.inDev }}
+
+{{-- Configuration --}}
+{{ config('app.name') }}
+@if(config.has('services.stripe'))
+  {{ config('services.stripe.key') }}
+@end
+
+{{-- Session & Flash --}}
+{{ session.get('cart.items') }}
+{{ flashMessages.get('notification') }}
+{{ old('email') }}
+
+@if(flashMessages.has('success'))
+  {{ flashMessages.get('success') }}
+@end
+
+{{-- Internationalization --}}
+{{ t('messages.welcome') }}
+{{ t('notifications.new_message', { count: messages.length }) }}
+{{ i18n.formatCurrency(price, { currency: 'USD' }) }}
+{{ i18n.formatDate(date, { dateStyle: 'long' }) }}
+
+{{-- Authentication --}}
+@if(auth.isAuthenticated)
+  {{ auth.user.email }}
+  {{ auth.user.fullName }}
+@end
+
+{{ auth.use('web').user }}
+@eval(await auth.use('api').check())
+
+{{-- Assets --}}
+{{ asset('resources/images/logo.png') }}
+{{ asset('resources/css/app.css') }}
+
+{{-- Mail-specific Helpers --}}
+{{{ embedImage(app.makePath('assets/header.jpg')) }}}
+{{ embedImageData(imageBuffer) }}
+
+{{-- ===================================================================== --}}
+{{-- JAVASCRIPT INTEGRATION --}}
+{{-- ===================================================================== --}}
+
+{{-- Async/Await --}}
+@let(data = await fetchData())
+@let(users = await User.all())
+
+{{-- Standard JavaScript Operators --}}
+{{ value + 10 }}
+{{ name || 'Anonymous' }}
+{{ user?.profile?.avatar }}
+{{ status ?? 'pending' }}
+{{ condition ? 'yes' : 'no' }}
+
+{{-- JavaScript Objects and Methods --}}
+{{ JSON.stringify(data) }}
+{{ Array.isArray(items) }}
+{{ new Date().toISOString() }}
+{{ Math.round(percentage) }}
+
+{{-- ===================================================================== --}}
+{{-- RESERVED KEYWORDS AND SPECIAL VARIABLES --}}
+{{-- ===================================================================== --}}
+
+{{-- Reserved for internal use --}}
+{{-- template, $context, state, $filename --}}
+
+{{-- Component Data Flow --}}
+@component('card', { title: 'Hello', variant: 'primary' })
+  @slot('header')
+    {{ $props.title }}
+  @end
+
+  @slot('body', { data: localData })
+    {{ $props.variant }}
+  @end
+@end
+
+{{-- ===================================================================== --}}
+{{-- FILE EXTENSIONS AND PATH PATTERNS --}}
+{{-- ===================================================================== --}}
+
+{{-- Template Extensions: .edge --}}
+@include('components/header')
+@include('emails/welcome')
+@layout('layouts/app')
+
+{{-- Disk Prefixes --}}
+@include('admin::dashboard/stats')
+@component('ui::components/button')
+
+{{-- ===================================================================== --}}
+{{-- CUSTOM TAG DEVELOPMENT INTERFACE --}}
+{{-- ===================================================================== --}}
+
+{{-- TagContract Properties --}}
+{{-- block: boolean - Block-level tag --}}
+{{-- seekable: boolean - Accepts arguments --}}
+{{-- tagName: string - Tag identifier --}}
+{{-- compile(parser, buffer, token) - Compilation method --}}
+
+{{-- Advanced Features --}}
+@let(computed = items.filter(item => item.active).map(item => item.name))
+@each((post, index) in posts.slice(0, 5))
+  {{ post.title }} (#{{ index + 1 }})
+@end
+
+{{-- Nested Components --}}
+@component('layouts/dashboard')
+  @slot('sidebar')
+    @component('navigation/menu', { items: menuItems })
+    @end
+  @end
+
+  @slot('content')
+    @each(widget in widgets)
+      @component('widgets/' + widget.type, widget.props)
+      @end
+    @end
+  @end
+@end
+
+{{-- End of EdgeJS Language Features Reference --}}

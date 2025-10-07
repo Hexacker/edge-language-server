@@ -18,6 +18,7 @@ import { EdgeParser } from "./server/parser";
 import { EdgeCompletionProvider } from "./completions/completion";
 import { EdgeHoverProvider } from "./hovers/hover";
 import { EdgeDefinitionProvider } from "./definitions/definition";
+import { EdgeFormattingProvider } from "./formatting/formatter";
 import { AutoClosingPairs } from "./utils/auto-closing";
 
 // Create a connection for the server
@@ -35,6 +36,7 @@ let edgeParser: EdgeParser;
 let completionProvider: EdgeCompletionProvider;
 let hoverProvider: EdgeHoverProvider;
 let definitionProvider: EdgeDefinitionProvider;
+let formattingProvider: EdgeFormattingProvider;
 
 connection.onInitialize(async (params: InitializeParams) => {
   // Initialize the parser
@@ -42,6 +44,7 @@ connection.onInitialize(async (params: InitializeParams) => {
   completionProvider = new EdgeCompletionProvider(edgeParser);
   hoverProvider = new EdgeHoverProvider(edgeParser);
   definitionProvider = new EdgeDefinitionProvider(edgeParser);
+  formattingProvider = new EdgeFormattingProvider();
 
   const capabilities = params.capabilities;
 
@@ -64,7 +67,7 @@ connection.onInitialize(async (params: InitializeParams) => {
       // Tell the client that this server supports code completion.
       completionProvider: {
         resolveProvider: true,
-        triggerCharacters: ["@", "{", ".", "("],
+        triggerCharacters: ["{", ".", "("],
       },
       hoverProvider: true,
       definitionProvider: true,
@@ -72,7 +75,7 @@ connection.onInitialize(async (params: InitializeParams) => {
         firstTriggerCharacter: "{",
         moreTriggerCharacter: ["(", "[", "}", ")", "]"],
       },
-      // documentFormattingProvider: false, // Formatting not implemented yet
+      documentFormattingProvider: true,
     },
   };
 
@@ -135,6 +138,14 @@ connection.onDefinition((params) => {
     return definitionProvider.provideDefinition(document, params.position);
   }
   return null;
+});
+
+connection.onDocumentFormatting(async (params) => {
+  const document = documents.get(params.textDocument.uri);
+  if (document && formattingProvider) {
+    return await formattingProvider.formatDocument(document, params.options);
+  }
+  return [];
 });
 
 connection.onDocumentOnTypeFormatting(
