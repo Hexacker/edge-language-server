@@ -43,9 +43,10 @@ export class EdgeFormattingProvider {
         try {
           formatted = await prettier.format(text, prettierOptions);
         } catch {
-          // If both fail, return empty array
-          console.error("EdgeJS formatting failed:", pluginError);
-          return [];
+          // If both fail, fall back to custom indentation logic
+          console.error("EdgeJS formatting failed, using fallback logic:", pluginError);
+          formatted = this.customFormatDocument(text, options?.tabSize || 2, options?.insertSpaces !== false);
+          console.log("Custom formatting applied");
         }
       }
 
@@ -68,6 +69,59 @@ export class EdgeFormattingProvider {
     }
   }
 
+  private customFormatDocument(text: string, tabSize: number, useSpaces: boolean): string {
+    const lines = text.split('\n');
+    let indentLevel = 0;
+    const indentedLines: string[] = [];
+
+    for (const line of lines) {
+      const originalLine = line;
+      const trimmedLine = originalLine.trim();
+      
+      if (!trimmedLine) {
+        // For empty lines, preserve the indentation level and just add an empty line
+        let currentIndent = useSpaces ? ' '.repeat(indentLevel * tabSize) : '\t'.repeat(indentLevel);
+        indentedLines.push(currentIndent);
+        continue;
+      }
+      
+      // Check if the line is a closing directive
+      const isBlockEnd = trimmedLine.startsWith('@end');
+      
+      // If it's a block end, decrease the indent level BEFORE processing the line
+      if (isBlockEnd && indentLevel > 0) {
+        indentLevel--;
+        // Ensure we don't go below 0
+        indentLevel = Math.max(0, indentLevel);
+      }
+      
+      // Determine current indentation
+      let currentIndent = useSpaces ? ' '.repeat(indentLevel * tabSize) : '\t'.repeat(indentLevel);
+      
+      // Add the current line with current indent level
+      indentedLines.push(currentIndent + trimmedLine);
+      
+      // Check if the line starts a block opening directive
+      const isBlockStart = trimmedLine.startsWith('@if(') || 
+                           trimmedLine.startsWith('@unless(') || 
+                           trimmedLine.startsWith('@each(') || 
+                           trimmedLine.startsWith('@component(') ||
+                           trimmedLine.startsWith('@slot(') ||
+                           trimmedLine.startsWith('@flashMessage(') ||
+                           trimmedLine.startsWith('@error(') ||
+                           trimmedLine.startsWith('@inputError(') ||
+                           trimmedLine.startsWith('@can(') ||
+                           trimmedLine.startsWith('@cannot(');
+      
+      // If it's a block start, increase the indent level AFTER processing the line
+      if (isBlockStart) {
+        indentLevel++;
+      }
+    }
+
+    return indentedLines.join('\n');
+  }
+
   async formatRange(
     document: TextDocument,
     range: Range,
@@ -82,10 +136,8 @@ export class EdgeFormattingProvider {
     character: string,
     options?: FormattingOptions,
   ): Promise<TextEdit[]> {
-    // Optional: Implement on-type formatting for specific characters
-    // For now, return empty array (no formatting on type)
-    // Could be enhanced to format specific constructs when certain characters are typed
-    return [];
+    // Delegate to the Edge-specific on-type formatting logic
+    return this.formatOnTypeEdge(document, position, character, options);
   }
   
   async formatOnTypeEdge(
