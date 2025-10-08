@@ -2,37 +2,37 @@
 
 // Test all the new completions that were added
 @if(condition)
-    Content
-@elseif(condition)
-    Content
-@else
-    Content
-@end
+  Content
+  @elseif(condition)
+  Content
+  @else
+  Content
+  @end
 
 @each(item in items)
-    {{ item.name }}
-@end
+  {{ item.name }}
+  @end
 
 @each((item, index) in items)
-    {{ index }}: {{ item.name }}
-@end
+  {{ index }}: {{ item.name }}
+  @end
 
 @component('components/button')
-    Content
-@end
+  Content
+  @end
 
 @!component('components/button')
 
 @slot('name')
-    Content
-@end
+  Content
+  @end
 
 @include('partials/header')
 @includeIf(condition, 'partials/content')
 
 @extends('layouts/app')
 @section('content')
-    Content
+Content
 @endsection
 
 @yield('content')
@@ -93,13 +93,14 @@
 @vite('resources/css/app.css')
 @viteReactRefresh
 @flashMessage('key')
-@error('field')
-@inputError('field')
-@can('permission')
-    Content
-@end
-@cannot('permission')
-    Content
-@end
-@embedImage('path/to/image')
-@embedImageData(data)
+  @error('field')
+    @inputError('field')
+      @can('permission')
+        Content
+        @end
+      @cannot('permission')
+        Content
+        @end
+      @embedImage('path/to/image')
+      @embedImageData(data)
+      

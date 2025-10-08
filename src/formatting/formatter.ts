@@ -44,8 +44,15 @@ export class EdgeFormattingProvider {
           formatted = await prettier.format(text, prettierOptions);
         } catch {
           // If both fail, fall back to custom indentation logic
-          console.error("EdgeJS formatting failed, using fallback logic:", pluginError);
-          formatted = this.customFormatDocument(text, options?.tabSize || 2, options?.insertSpaces !== false);
+          console.error(
+            "EdgeJS formatting failed, using fallback logic:",
+            pluginError,
+          );
+          formatted = this.customFormatDocument(
+            text,
+            options?.tabSize || 2,
+            options?.insertSpaces !== false,
+          );
           console.log("Custom formatting applied");
         }
       }
@@ -69,57 +76,112 @@ export class EdgeFormattingProvider {
     }
   }
 
-  private customFormatDocument(text: string, tabSize: number, useSpaces: boolean): string {
-    const lines = text.split('\n');
+  private customFormatDocument(
+    text: string,
+    tabSize: number,
+    useSpaces: boolean,
+  ): string {
+    const lines = text.split("\n");
     let indentLevel = 0;
     const indentedLines: string[] = [];
 
+    // Stack to keep track of all opened constructs (HTML tags and Edge blocks)
+    // Each entry is { type: 'html' | 'edge', tag: string, originalIndent: number }
+    const constructStack: { type: 'html' | 'edge'; tag: string; originalIndent: number }[] = [];
+
     for (const line of lines) {
-      const originalLine = line;
-      const trimmedLine = originalLine.trim();
-      
+      const trimmedLine = line.trim();
+
       if (!trimmedLine) {
         // For empty lines, preserve the indentation level and just add an empty line
-        let currentIndent = useSpaces ? ' '.repeat(indentLevel * tabSize) : '\t'.repeat(indentLevel);
+        let currentIndent = useSpaces
+          ? " ".repeat(indentLevel * tabSize)
+          : "\t".repeat(indentLevel);
         indentedLines.push(currentIndent);
         continue;
       }
-      
+
       // Check if the line is a closing directive
-      const isBlockEnd = trimmedLine.startsWith('@end');
+      const isBlockEnd = trimmedLine.startsWith("@end");
       
-      // If it's a block end, decrease the indent level BEFORE processing the line
-      if (isBlockEnd && indentLevel > 0) {
-        indentLevel--;
-        // Ensure we don't go below 0
-        indentLevel = Math.max(0, indentLevel);
+      // Check for closing HTML tags
+      const closingTagMatches = trimmedLine.match(/<\/([a-zA-Z][\w:-]*)>/g);
+
+      // Process closing constructs (both HTML tags and Edge directives)
+      if (isBlockEnd) {
+        // Find the most recent edge construct in the stack and remove it, 
+        // then set indent level to the original indent of that construct
+        for (let i = constructStack.length - 1; i >= 0; i--) {
+          if (constructStack[i].type === 'edge') {
+            indentLevel = constructStack[i].originalIndent;
+            constructStack.splice(i, 1);
+            break;
+          }
+        }
       }
       
-      // Determine current indentation
-      let currentIndent = useSpaces ? ' '.repeat(indentLevel * tabSize) : '\t'.repeat(indentLevel);
-      
-      // Add the current line with current indent level
+      if (closingTagMatches) {
+        // For each closing HTML tag, match with the most recent unmatched opening tag
+        for (const match of closingTagMatches) {
+          const tagName = match.substring(2, match.length - 1); // Extract tag name from </tag>
+          
+          // Find the most recent occurrence of this tag in the stack and remove it
+          for (let i = constructStack.length - 1; i >= 0; i--) {
+            if (constructStack[i].type === 'html' && constructStack[i].tag === tagName) {
+              indentLevel = constructStack[i].originalIndent;
+              constructStack.splice(i, 1);
+              break;
+            }
+          }
+        }
+      }
+
+      // Determine current indentation level after processing closes
+      let currentIndent = useSpaces
+        ? " ".repeat(indentLevel * tabSize)
+        : "\t".repeat(indentLevel);
+
+      // Now apply the current indentation to the line
       indentedLines.push(currentIndent + trimmedLine);
-      
-      // Check if the line starts a block opening directive
-      const isBlockStart = trimmedLine.startsWith('@if(') || 
-                           trimmedLine.startsWith('@unless(') || 
-                           trimmedLine.startsWith('@each(') || 
-                           trimmedLine.startsWith('@component(') ||
-                           trimmedLine.startsWith('@slot(') ||
-                           trimmedLine.startsWith('@flashMessage(') ||
-                           trimmedLine.startsWith('@error(') ||
-                           trimmedLine.startsWith('@inputError(') ||
-                           trimmedLine.startsWith('@can(') ||
-                           trimmedLine.startsWith('@cannot(');
-      
-      // If it's a block start, increase the indent level AFTER processing the line
+
+      // Check if the line is a block opening directive
+      const isBlockStart =
+        trimmedLine.startsWith("@if(") ||
+        trimmedLine.startsWith("@unless(") ||
+        trimmedLine.startsWith("@each(") ||
+        trimmedLine.startsWith("@component(") ||
+        trimmedLine.startsWith("@slot(") ||
+        trimmedLine.startsWith("@flashMessage(") ||
+        trimmedLine.startsWith("@error(") ||
+        trimmedLine.startsWith("@inputError(") ||
+        trimmedLine.startsWith("@can(") ||
+        trimmedLine.startsWith("@cannot(");
+
+      // Check for opening HTML tags (not self-closing) and add to stack
+      const openingTagMatches = trimmedLine.match(/<([a-zA-Z][\w:-]*)[^>]*?>/g);
+      if (openingTagMatches) {
+        for (const match of openingTagMatches) {
+          // Skip self-closing tags (ending with />)
+          if (!match.endsWith("/>")) {
+            const tagNameMatch = match.match(/<([a-zA-Z][\w:-]*)/);
+            if (tagNameMatch) {
+              const tagName = tagNameMatch[1];
+              // Add to stack with current indent level and increase indent level
+              constructStack.push({ type: 'html', tag: tagName, originalIndent: indentLevel });
+              indentLevel++;
+            }
+          }
+        }
+      }
+
+      // If it's a block start, add to stack and increase the indent level
       if (isBlockStart) {
+        constructStack.push({ type: 'edge', tag: 'block', originalIndent: indentLevel }); // Using 'block' as placeholder for any edge construct
         indentLevel++;
       }
     }
 
-    return indentedLines.join('\n');
+    return indentedLines.join("\n");
   }
 
   async formatRange(
@@ -139,7 +201,7 @@ export class EdgeFormattingProvider {
     // Delegate to the Edge-specific on-type formatting logic
     return this.formatOnTypeEdge(document, position, character, options);
   }
-  
+
   async formatOnTypeEdge(
     document: TextDocument,
     position: Position,
@@ -148,20 +210,22 @@ export class EdgeFormattingProvider {
   ): Promise<TextEdit[]> {
     // For Edge-specific on-type formatting like auto-indenting after @end
     // For now, return empty array, but this could be enhanced
-    if (character === '\n') {
+    if (character === "\n") {
       // Potentially format indentation after new lines
-      const line = document.getText(Range.create(
-        Position.create(position.line - 1, 0),
-        Position.create(position.line, 0)
-      ));
-      
+      const line = document.getText(
+        Range.create(
+          Position.create(position.line - 1, 0),
+          Position.create(position.line, 0),
+        ),
+      );
+
       // Check if we just completed a block directive like @end
-      if (line.trim().startsWith('@end')) {
+      if (line.trim().startsWith("@end")) {
         // Format the current document to ensure proper indentation
         return this.formatDocument(document, options);
       }
     }
-    
+
     return [];
   }
 }
