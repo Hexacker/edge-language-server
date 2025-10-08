@@ -1,13 +1,6 @@
-import { TextDocument } from "vscode-languageserver-textdocument";
-import {
-  Position,
-  CompletionItem,
-  CompletionItemKind,
-  InsertTextFormat,
-  Range,
-  TextEdit,
-} from "vscode-languageserver";
-import { EdgeParser } from "../server/parser";
+import { CompletionItem, CompletionItemKind, InsertTextFormat, Position, Range, TextEdit } from 'vscode-languageserver';
+import { TextDocument } from 'vscode-languageserver-textdocument';
+import { EdgeParser } from '../server/parser';
 
 export class EdgeCompletionProvider {
   private edgeParser: EdgeParser;
@@ -17,355 +10,344 @@ export class EdgeCompletionProvider {
   }
 
   private edgeDirectives: CompletionItem[] = [
-    // Conditional directives
+    // Conditional directives - OPTIMIZED FOR ZED EDITOR
     {
-      label: "@if",
+      label: '@if',
       kind: CompletionItemKind.Keyword,
-      detail: "Conditional directive",
-      insertText: "@if(${1:condition})\n  ${2:content}\n@end", // ← Simple version
+      detail: 'Conditional directive',
+      insertText: '@if(${1:condition})\n$0\n@end',
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "@if",
-      documentation:
-        "Creates a conditional block that renders content based on a condition.",
+      filterText: '@if',
+      documentation: 'Creates a conditional block that renders content based on a condition.',
     },
     {
-      label: "@elseif",
+      label: '@elseif',
       kind: CompletionItemKind.Keyword,
-      detail: "Else-if directive",
-      insertText: "elseif(${1:condition})\n${2:content}",
+      detail: 'Else-if directive',
+      insertText: '@elseif(${1:condition})\n$0',
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "elseif",
-      documentation: "Adds an else-if condition to an if block.",
+      filterText: '@elseif',
+      documentation: 'Adds an else-if condition to an if block.',
     },
     {
-      label: "@else",
+      label: '@else',
       kind: CompletionItemKind.Keyword,
-      detail: "Else directive",
-      insertText: "@else\n${1:content}",
+      detail: 'Else directive',
+      insertText: '@else\n$0',
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "else",
-      documentation: "Adds an else clause to an if block.",
+      filterText: '@else',
+      documentation: 'Adds an else clause to an if block.',
     },
     {
-      label: "@unless",
+      label: '@unless',
       kind: CompletionItemKind.Keyword,
-      detail: "Unless directive",
-      insertText: "@unless(${1:condition})\n${2:content}\n@end",
+      detail: 'Unless directive',
+      insertText: '@unless(${1:condition})\n$0\n@end',
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "unless",
-      documentation:
-        "Creates a conditional block that renders content unless a condition is true.",
+      filterText: '@unless',
+      documentation: 'Creates a conditional block that renders content unless a condition is true.',
     },
 
     // Loop directives
     {
-      label: "@each",
+      label: '@each',
       kind: CompletionItemKind.Keyword,
-      detail: "Loop directive",
-      insertText: "@each(${1:item} in ${2:items})\n  ${3:content}\n@end", // ← Simple version
+      detail: 'Loop directive',
+      insertText: '@each(${1:item} in ${2:items})\n$0\n@end',
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "@each",
-      documentation:
-        "Loops over iterable data and renders content for each item.",
+      filterText: '@each',
+      documentation: 'Loops over iterable data and renders content for each item.',
     },
-
     {
-      label: "@each (with index)",
+      label: '@each (with index)',
       kind: CompletionItemKind.Keyword,
-      detail: "Loop with index directive",
-      insertText:
-        "@each((${1:item}, ${2:index}) in ${3:items})\n${4:content}\n@end",
+      detail: 'Loop with index directive',
+      insertText: '@each((${1:item}, ${2:index}) in ${3:items})\n$0\n@end',
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "each",
-      documentation:
-        "Loops over iterable data with index and renders content for each item.",
+      filterText: 'each',
+      documentation: 'Loops over iterable data with index and renders content for each item.',
     },
 
     // Component and template directives
     {
-      label: "@component",
+      label: '@component',
       kind: CompletionItemKind.Function,
-      detail: "Include component",
-      insertText: "@component('${1:name}')\n  ${2:content}\n@end", // ← Simple version
+      detail: 'Include component',
+      insertText: "@component('${1:name}')\n$0\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "@component",
-      documentation: "Include a reusable component.",
+      filterText: '@component',
+      documentation: 'Include a reusable component.',
     },
     {
-      label: "@!component",
+      label: '@!component',
       kind: CompletionItemKind.Function,
-      detail: "Inline component rendering",
-      insertText: "!component('${1:name}')",
+      detail: 'Inline component rendering',
+      insertText: "@!component('${1:name}')",
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "!component",
-      documentation: "Include a component inline without a block.",
+      filterText: '!component',
+      documentation: 'Include a component inline without a block.',
     },
     {
-      label: "@!component (with props)",
+      label: '@!component (with props)',
       kind: CompletionItemKind.Function,
-      detail: "Inline component with props",
-      insertText: "!component('${1:name}', { ${2:prop}: ${3:value} })",
+      detail: 'Inline component with props',
+      insertText: "@!component('${1:name}', { ${2:prop}: ${3:value} })",
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "!component",
-      documentation: "Include a component inline with props.",
+      filterText: '!component',
+      documentation: 'Include a component inline with props.',
     },
     {
-      label: "@slot",
+      label: '@slot',
       kind: CompletionItemKind.Function,
-      detail: "Define named slot",
-      insertText: "slot('${1:name}')\n  ${2:content}\n@end",
+      detail: 'Define named slot',
+      insertText: "@slot('${1:name}')\n$0\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "slot",
-      documentation: "Define a named slot in a component.",
+      filterText: 'slot',
+      documentation: 'Define a named slot in a component.',
     },
     {
-      label: "@slot (main)",
+      label: '@slot (main)',
       kind: CompletionItemKind.Function,
-      detail: "Define main slot",
-      insertText: "slot\n  ${1:content}\n@end",
+      detail: 'Define main slot',
+      insertText: '@slot\n$0\n@end',
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "slot",
-      documentation: "Define the main slot in a component.",
+      filterText: 'slot',
+      documentation: 'Define the main slot in a component.',
     },
     {
-      label: "@!slot",
+      label: '@!slot',
       kind: CompletionItemKind.Function,
-      detail: "Auto-closed slot",
-      insertText: "!slot('${1:name}', '${2:default_content}')",
+      detail: 'Auto-closed slot',
+      insertText: "@!slot('${1:name}', '${2:default_content}')",
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "!slot",
-      documentation: "Define a named slot with default content.",
+      filterText: '!slot',
+      documentation: 'Define a named slot with default content.',
     },
     {
-      label: "@inject",
+      label: '@inject',
       kind: CompletionItemKind.Variable,
-      detail: "Inject variable",
-      insertText: "inject(${1:variable})",
+      detail: 'Inject variable',
+      insertText: '@inject(${1:variable})',
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "inject",
-      documentation: "Inject a variable into the template context.",
+      filterText: 'inject',
+      documentation: 'Inject a variable into the template context.',
     },
     {
-      label: "@include",
+      label: '@include',
       kind: CompletionItemKind.Function,
-      detail: "Include template",
-      insertText: "include('${1:template}')",
+      detail: 'Include template',
+      insertText: "@include('${1:template}')",
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "include",
-      documentation: "Include another template file.",
+      filterText: 'include',
+      documentation: 'Include another template file.',
     },
     {
-      label: "@includeIf",
+      label: '@includeIf',
       kind: CompletionItemKind.Function,
-      detail: "Conditional include",
-      insertText: "includeIf(${1:condition}, '${2:template}')",
+      detail: 'Conditional include',
+      insertText: "@includeIf(${1:condition}, '${2:template}')",
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "includeIf",
-      documentation: "Include a template file only if a condition is true.",
+      filterText: 'includeIf',
+      documentation: 'Include a template file only if a condition is true.',
     },
 
     // Utility directives
     {
-      label: "@eval",
+      label: '@eval',
       kind: CompletionItemKind.Function,
-      detail: "Evaluate expression",
-      insertText: "eval(${1:expression})",
+      detail: 'Evaluate expression',
+      insertText: '@eval(${1:expression})',
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "eval",
-      documentation: "Evaluate a JavaScript expression.",
+      filterText: 'eval',
+      documentation: 'Evaluate a JavaScript expression.',
     },
     {
-      label: "@let",
+      label: '@let',
       kind: CompletionItemKind.Variable,
-      detail: "Declare variable",
-      insertText: "let(${1:name} = ${2:value})",
+      detail: 'Declare variable',
+      insertText: '@let(${1:name} = ${2:value})',
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "let",
-      documentation: "Declare a template variable.",
+      filterText: 'let',
+      documentation: 'Declare a template variable.',
     },
     {
-      label: "@assign",
+      label: '@assign',
       kind: CompletionItemKind.Variable,
-      detail: "Assign value",
-      insertText: "assign(${1:name} = ${2:value})",
+      detail: 'Assign value',
+      insertText: '@assign(${1:name} = ${2:value})',
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "assign",
-      documentation: "Assign a value to a variable.",
+      filterText: 'assign',
+      documentation: 'Assign a value to a variable.',
     },
     {
-      label: "@debugger",
+      label: '@debugger',
       kind: CompletionItemKind.Keyword,
-      detail: "Debug breakpoint",
-      insertText: "debugger",
-      filterText: "debugger",
-      documentation: "Set a debug breakpoint.",
+      detail: 'Debug breakpoint',
+      insertText: '@debugger',
+      filterText: 'debugger',
+      documentation: 'Set a debug breakpoint.',
     },
     {
-      label: "@newError",
+      label: '@newError',
       kind: CompletionItemKind.Function,
-      detail: "Create new error",
-      insertText:
-        "newError(${1:message}, ${2:filename}, ${3:line}, ${4:column})",
+      detail: 'Create new error',
+      insertText: '@newError(${1:message}, ${2:filename}, ${3:line}, ${4:column})',
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "newError",
-      documentation:
-        "Create a new error with message, filename, line, and column.",
+      filterText: 'newError',
+      documentation: 'Create a new error with message, filename, line, and column.',
     },
 
     // AdonisJS specific directives
     {
-      label: "@vite",
+      label: '@vite',
       kind: CompletionItemKind.Function,
-      detail: "Vite asset",
-      insertText: "vite('${1:path}')",
+      detail: 'Vite asset',
+      insertText: "@vite('${1:path}')",
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "vite",
-      documentation: "Handle Vite assets.",
+      filterText: 'vite',
+      documentation: 'Handle Vite assets.',
     },
     {
-      label: "@viteReactRefresh",
+      label: '@viteReactRefresh',
       kind: CompletionItemKind.Function,
-      detail: "Vite React refresh",
-      insertText: "viteReactRefresh",
-      filterText: "viteReactRefresh",
-      documentation: "Enable React HMR in development.",
+      detail: 'Vite React refresh',
+      insertText: '@viteReactRefresh',
+      filterText: 'viteReactRefresh',
+      documentation: 'Enable React HMR in development.',
     },
     {
-      label: "@svg",
+      label: '@svg',
       kind: CompletionItemKind.Function,
-      detail: "Include SVG",
-      insertText: "svg('${1:path}')",
+      detail: 'Include SVG',
+      insertText: "@svg('${1:path}')",
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "svg",
-      documentation: "Include an SVG file.",
+      filterText: 'svg',
+      documentation: 'Include an SVG file.',
     },
     {
-      label: "@flashMessage",
+      label: '@flashMessage',
       kind: CompletionItemKind.Function,
-      detail: "Flash message helper",
-      insertText: "flashMessage('${1:key}')\n${2:content}\n@end",
+      detail: 'Flash message helper',
+      insertText: "@flashMessage('${1:key}')\n$0\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "flashMessage",
-      documentation: "Read flash messages conditionally.",
+      filterText: 'flashMessage',
+      documentation: 'Read flash messages conditionally.',
     },
     {
-      label: "@error",
+      label: '@error',
       kind: CompletionItemKind.Function,
-      detail: "Error helper",
-      insertText: "error('${1:field}')\n${2:content}\n@end",
+      detail: 'Error helper',
+      insertText: "@error('${1:field}')\n$0\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "error",
-      documentation: "Read error messages from errorsBag.",
+      filterText: 'error',
+      documentation: 'Read error messages from errorsBag.',
     },
     {
-      label: "@inputError",
+      label: '@inputError',
       kind: CompletionItemKind.Function,
-      detail: "Input error helper",
-      insertText: "inputError('${1:field}')\n${2:content}\n@end",
+      detail: 'Input error helper',
+      insertText: "@inputError('${1:field}')\n$0\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "inputError",
-      documentation: "Read validation error messages from inputErrorsBag.",
+      filterText: 'inputError',
+      documentation: 'Read validation error messages from inputErrorsBag.',
     },
     {
-      label: "@can",
+      label: '@can',
       kind: CompletionItemKind.Function,
-      detail: "Authorization check",
-      insertText: "can('${1:permission}')\n${2:content}\n@end",
+      detail: 'Authorization check',
+      insertText: "@can('${1:permission}')\n$0\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "can",
-      documentation: "Authorization check in templates.",
+      filterText: 'can',
+      documentation: 'Authorization check in templates.',
     },
     {
-      label: "@cannot",
+      label: '@cannot',
       kind: CompletionItemKind.Function,
-      detail: "Authorization negation",
-      insertText: "cannot('${1:permission}')\n${2:content}\n@end",
+      detail: 'Authorization negation',
+      insertText: "@cannot('${1:permission}')\n$0\n@end",
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "cannot",
-      documentation: "Negated authorization check in templates.",
+      filterText: 'cannot',
+      documentation: 'Negated authorization check in templates.',
     },
 
     // Auto-closing pairs for mustache syntax
     {
-      label: "{{-- Comment --}}",
+      label: '{{-- Comment --}}',
       kind: CompletionItemKind.Snippet,
-      detail: "EdgeJS Comment",
-      insertText: "{{-- ${1:comment} --}}",
+      detail: 'EdgeJS Comment',
+      insertText: '{{-- ${1:comment} --}}',
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "comment",
-      documentation: "Insert an EdgeJS comment block.",
+      filterText: 'comment',
+      documentation: 'Insert an EdgeJS comment block.',
     },
     {
-      label: "{{{ Raw Output }}}",
+      label: '{{{ Raw Output }}}',
       kind: CompletionItemKind.Snippet,
-      detail: "EdgeJS Raw Output (unescaped)",
-      insertText: "{{{ ${1:expression} }}}",
+      detail: 'EdgeJS Raw Output (unescaped)',
+      insertText: '{{{ ${1:expression} }}}',
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "raw",
-      documentation: "Output raw, unescaped HTML content.",
+      filterText: 'raw',
+      documentation: 'Output raw, unescaped HTML content.',
     },
     {
-      label: "{{ Escaped Output }}",
+      label: '{{ Escaped Output }}',
       kind: CompletionItemKind.Snippet,
-      detail: "EdgeJS Escaped Output",
-      insertText: "{{ ${1:expression} }}",
+      detail: 'EdgeJS Escaped Output',
+      insertText: '{{ ${1:expression} }}',
       insertTextFormat: InsertTextFormat.Snippet,
-      filterText: "output",
-      documentation: "Output escaped content (safe for HTML).",
+      filterText: 'output',
+      documentation: 'Output escaped content (safe for HTML).',
     },
   ];
 
   private edgeSpecialVariables: CompletionItem[] = [
     {
-      label: "$loop",
+      label: '$loop',
       kind: CompletionItemKind.Variable,
-      detail: "Loop context object",
+      detail: 'Loop context object',
       documentation: {
-        kind: "markdown",
+        kind: 'markdown',
         value:
-          "Provides access to loop context:\n" +
-          "- index: Current iteration (0-based)\n" +
-          "- iteration: Current iteration (1-based)\n" +
-          "- length: Total length of the iterable\n" +
-          "- first: True if first iteration\n" +
-          "- last: True if last iteration\n" +
-          "- remaining: Number of iterations remaining\n" +
-          "- depth: Nesting level of the loop",
+          'Provides access to loop context:\n' +
+          '- index: Current iteration (0-based)\n' +
+          '- iteration: Current iteration (1-based)\n' +
+          '- length: Total length of the iterable\n' +
+          '- first: True if first iteration\n' +
+          '- last: True if last iteration\n' +
+          '- remaining: Number of iterations remaining\n' +
+          '- depth: Nesting level of the loop',
       },
     },
     {
-      label: "$slot",
+      label: '$slot',
       kind: CompletionItemKind.Variable,
-      detail: "Slot context object",
-      documentation: "Access named slots and their content within components.",
+      detail: 'Slot context object',
+      documentation: 'Access named slots and their content within components.',
     },
   ];
 
   private commonSlots: CompletionItem[] = [
     {
-      label: "main",
+      label: 'main',
       kind: CompletionItemKind.Value,
-      detail: "Main content slot",
-      documentation: "The default slot for component content.",
+      detail: 'Main content slot',
+      documentation: 'The default slot for component content.',
     },
     {
-      label: "header",
+      label: 'header',
       kind: CompletionItemKind.Value,
-      detail: "Header slot",
-      documentation: "Commonly used for header content in layouts/components.",
+      detail: 'Header slot',
+      documentation: 'Commonly used for header content in layouts/components.',
     },
     {
-      label: "footer",
+      label: 'footer',
       kind: CompletionItemKind.Value,
-      detail: "Footer slot",
-      documentation: "Commonly used for footer content in layouts/components.",
+      detail: 'Footer slot',
+      documentation: 'Commonly used for footer content in layouts/components.',
     },
   ];
 
-  provideCompletions(
-    document: TextDocument,
-    position: Position,
-  ): CompletionItem[] {
+  provideCompletions(document: TextDocument, position: Position): CompletionItem[] {
     const text = document.getText();
     const offset = document.offsetAt(position);
 
@@ -380,20 +362,36 @@ export class EdgeCompletionProvider {
     });
 
     // Check for @ character - FIX FOR DUPLICATION ISSUE
-    const atIndex = lineText.lastIndexOf("@");
+    const atIndex = lineText.lastIndexOf('@');
     if (atIndex !== -1 && atIndex < position.character) {
-      // Create range that includes the @ character to replace it entirely
+      // Get the full line to check if there's content after cursor
+      const fullLine = document.getText({
+        start: { line: position.line, character: 0 },
+        end: { line: position.line + 1, character: 0 },
+      });
+
+      // Get text after cursor on the same line
+      const afterCursor = fullLine.substring(position.character).replace(/\n$/, '');
+
+      // Create range that replaces from column 0 to end of line
+      // This ensures we completely reset the line's indentation
       const replaceRange = Range.create(
-        { line: position.line, character: atIndex },
-        position,
+        { line: position.line, character: 0 },
+        { line: position.line, character: fullLine.length - 1 } // End of line (before \n)
       );
 
       // Return directives with proper text replacement
       return this.edgeDirectives
-        .filter((item) => item.label.startsWith("@"))
+        .filter((item) => item.label.startsWith('@'))
         .map((item) => {
-          // Use the full insertText (with snippet) instead of just the label
-          const fullText = item.insertText || item.label;
+          // Use the full insertText (with snippet) without any modifications
+          let fullText = item.insertText || item.label;
+
+          // If there's text after cursor, append it to preserve it
+          if (afterCursor.length > 0) {
+            fullText = fullText + afterCursor;
+          }
+
           return {
             ...item,
             textEdit: TextEdit.replace(replaceRange, fullText),
@@ -407,11 +405,7 @@ export class EdgeCompletionProvider {
     // Parse document for more context-aware completions
     try {
       const tree = this.edgeParser.parse(text);
-      const node = this.edgeParser.getNodeAtPosition(
-        tree,
-        position.line,
-        position.character,
-      );
+      const node = this.edgeParser.getNodeAtPosition(tree, position.line, position.character);
 
       if (node && this.isInsideString(node)) {
         return this.getPathCompletions();
@@ -424,25 +418,22 @@ export class EdgeCompletionProvider {
     return this.edgeDirectives;
   }
 
-  private createCompletionItem(
-    item: CompletionItem,
-    indentation: string,
-  ): CompletionItem {
+  private createCompletionItem(item: CompletionItem, indentation: string): CompletionItem {
     let insertText = item.insertText || item.label;
 
     // Ensure it starts with @
-    if (!insertText.startsWith("@")) {
-      insertText = "@" + insertText;
+    if (!insertText.startsWith('@')) {
+      insertText = '@' + insertText;
     }
 
     // Add indentation to multiline content
     insertText = insertText
-      .split("\n")
+      .split('\n')
       .map((line, index) => {
         if (index === 0) return line;
         return indentation + line;
       })
-      .join("\n");
+      .join('\n');
 
     return {
       ...item,
@@ -450,10 +441,7 @@ export class EdgeCompletionProvider {
     };
   }
 
-  private isInsideInterpolation(
-    document: TextDocument,
-    position: Position,
-  ): boolean {
+  private isInsideInterpolation(document: TextDocument, position: Position): boolean {
     const text = document.getText();
     const offset = document.offsetAt(position);
     let inInterpolation = false;
@@ -461,12 +449,12 @@ export class EdgeCompletionProvider {
 
     while (i < offset) {
       if (i < text.length - 1) {
-        if (text[i] === "{" && text[i + 1] === "{") {
+        if (text[i] === '{' && text[i + 1] === '{') {
           inInterpolation = true;
           i += 2;
           continue;
         }
-        if (text[i] === "}" && text[i + 1] === "}") {
+        if (text[i] === '}' && text[i + 1] === '}') {
           inInterpolation = false;
           i += 2;
           continue;
@@ -479,211 +467,210 @@ export class EdgeCompletionProvider {
   }
 
   private isInsideString(node: any): boolean {
-    return node.type === "string";
+    return node.type === 'string';
   }
 
   private adonisJsHelpers: CompletionItem[] = [
     {
-      label: "route",
+      label: 'route',
       kind: CompletionItemKind.Function,
-      detail: "Generate URL for named route",
+      detail: 'Generate URL for named route',
       insertText: "route('${1:routeName}')",
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Generate URL for a named route",
+      documentation: 'Generate URL for a named route',
     },
     {
-      label: "signedRoute",
+      label: 'signedRoute',
       kind: CompletionItemKind.Function,
-      detail: "Generate signed URL for named route",
+      detail: 'Generate signed URL for named route',
       insertText: "signedRoute('${1:routeName}')",
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Generate signed URL for a named route",
+      documentation: 'Generate signed URL for a named route',
     },
     {
-      label: "request",
+      label: 'request',
       kind: CompletionItemKind.Variable,
-      detail: "HTTP request object",
-      documentation: "Reference to the ongoing HTTP request instance",
+      detail: 'HTTP request object',
+      documentation: 'Reference to the ongoing HTTP request instance',
     },
     {
-      label: "auth",
+      label: 'auth',
       kind: CompletionItemKind.Variable,
-      detail: "Authentication object",
-      documentation:
-        "Reference to ctx.auth property for accessing logged-in user information",
+      detail: 'Authentication object',
+      documentation: 'Reference to ctx.auth property for accessing logged-in user information',
     },
     {
-      label: "config",
+      label: 'config',
       kind: CompletionItemKind.Function,
-      detail: "Get configuration value",
+      detail: 'Get configuration value',
       insertText: "config('${1:key}')",
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Helper function to reference configuration values",
+      documentation: 'Helper function to reference configuration values',
     },
     {
-      label: "session",
+      label: 'session',
       kind: CompletionItemKind.Function,
-      detail: "Get session value",
+      detail: 'Get session value',
       insertText: "session('${1:key}')",
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Read-only copy of the session object",
+      documentation: 'Read-only copy of the session object',
     },
     {
-      label: "flashMessages",
+      label: 'flashMessages',
       kind: CompletionItemKind.Variable,
-      detail: "Session flash messages",
-      documentation: "Read-only copy of session flash messages",
+      detail: 'Session flash messages',
+      documentation: 'Read-only copy of session flash messages',
     },
   ];
 
   private propsHelpers: CompletionItem[] = [
     {
-      label: "$props.toAttrs",
+      label: '$props.toAttrs',
       kind: CompletionItemKind.Method,
-      detail: "Convert props to HTML attributes",
-      insertText: "$props.toAttrs()",
+      detail: 'Convert props to HTML attributes',
+      insertText: '$props.toAttrs()',
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Convert props object to HTML attributes string",
+      documentation: 'Convert props object to HTML attributes string',
     },
     {
-      label: "$props.merge",
+      label: '$props.merge',
       kind: CompletionItemKind.Method,
-      detail: "Merge props with defaults",
-      insertText: "$props.merge(${1:defaults})",
+      detail: 'Merge props with defaults',
+      insertText: '$props.merge(${1:defaults})',
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Merge props object with default values",
+      documentation: 'Merge props object with default values',
     },
     {
-      label: "$props.only",
+      label: '$props.only',
       kind: CompletionItemKind.Method,
-      detail: "Extract specific props",
-      insertText: "$props.only([${1:keys}])",
+      detail: 'Extract specific props',
+      insertText: '$props.only([${1:keys}])',
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Extract only specified props from props object",
+      documentation: 'Extract only specified props from props object',
     },
     {
-      label: "$props.except",
+      label: '$props.except',
       kind: CompletionItemKind.Method,
-      detail: "Exclude specific props",
-      insertText: "$props.except([${1:keys}])",
+      detail: 'Exclude specific props',
+      insertText: '$props.except([${1:keys}])',
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Exclude specified props from props object",
+      documentation: 'Exclude specified props from props object',
     },
     {
-      label: "$props.get",
+      label: '$props.get',
       kind: CompletionItemKind.Method,
-      detail: "Get property value",
+      detail: 'Get property value',
       insertText: "$props.get('${1:key}')",
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Get a property value from props",
+      documentation: 'Get a property value from props',
     },
   ];
 
   private htmlHelpers: CompletionItem[] = [
     {
-      label: "html.escape",
+      label: 'html.escape',
       kind: CompletionItemKind.Function,
-      detail: "Escape HTML",
-      insertText: "html.escape(${1:html})",
+      detail: 'Escape HTML',
+      insertText: 'html.escape(${1:html})',
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Escape HTML characters in string",
+      documentation: 'Escape HTML characters in string',
     },
     {
-      label: "html.safe",
+      label: 'html.safe',
       kind: CompletionItemKind.Function,
-      detail: "Mark as safe HTML",
-      insertText: "html.safe(${1:html})",
+      detail: 'Mark as safe HTML',
+      insertText: 'html.safe(${1:html})',
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Mark string as safe HTML (unescaped)",
+      documentation: 'Mark string as safe HTML (unescaped)',
     },
     {
-      label: "html.classNames",
+      label: 'html.classNames',
       kind: CompletionItemKind.Function,
-      detail: "Generate CSS class names",
-      insertText: "html.classNames(${1:classes})",
+      detail: 'Generate CSS class names',
+      insertText: 'html.classNames(${1:classes})',
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Generate CSS class names from object or array",
+      documentation: 'Generate CSS class names from object or array',
     },
     {
-      label: "html.attrs",
+      label: 'html.attrs',
       kind: CompletionItemKind.Function,
-      detail: "Generate HTML attributes",
-      insertText: "html.attrs(${1:attributes})",
+      detail: 'Generate HTML attributes',
+      insertText: 'html.attrs(${1:attributes})',
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Generate HTML attributes from object",
+      documentation: 'Generate HTML attributes from object',
     },
   ];
 
   private stringHelpers: CompletionItem[] = [
     {
-      label: "camelCase",
+      label: 'camelCase',
       kind: CompletionItemKind.Function,
-      detail: "Convert to camelCase",
-      insertText: "camelCase(${1:text})",
+      detail: 'Convert to camelCase',
+      insertText: 'camelCase(${1:text})',
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Convert string to camelCase",
+      documentation: 'Convert string to camelCase',
     },
     {
-      label: "snakeCase",
+      label: 'snakeCase',
       kind: CompletionItemKind.Function,
-      detail: "Convert to snake_case",
-      insertText: "snakeCase(${1:text})",
+      detail: 'Convert to snake_case',
+      insertText: 'snakeCase(${1:text})',
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Convert string to snake_case",
+      documentation: 'Convert string to snake_case',
     },
     {
-      label: "dashCase",
+      label: 'dashCase',
       kind: CompletionItemKind.Function,
-      detail: "Convert to dash-case",
-      insertText: "dashCase(${1:text})",
+      detail: 'Convert to dash-case',
+      insertText: 'dashCase(${1:text})',
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Convert string to dash-case",
+      documentation: 'Convert string to dash-case',
     },
     {
-      label: "pascalCase",
+      label: 'pascalCase',
       kind: CompletionItemKind.Function,
-      detail: "Convert to PascalCase",
-      insertText: "pascalCase(${1:text})",
+      detail: 'Convert to PascalCase',
+      insertText: 'pascalCase(${1:text})',
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Convert string to PascalCase",
+      documentation: 'Convert string to PascalCase',
     },
   ];
 
   private textHelpers: CompletionItem[] = [
     {
-      label: "nl2br",
+      label: 'nl2br',
       kind: CompletionItemKind.Function,
-      detail: "Convert newlines to <br> tags",
-      insertText: "nl2br(${1:text})",
+      detail: 'Convert newlines to <br> tags',
+      insertText: 'nl2br(${1:text})',
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Convert newlines to HTML <br> tags",
+      documentation: 'Convert newlines to HTML <br> tags',
     },
     {
-      label: "truncate",
+      label: 'truncate',
       kind: CompletionItemKind.Function,
-      detail: "Truncate text",
-      insertText: "truncate(${1:text}, ${2:length})",
+      detail: 'Truncate text',
+      insertText: 'truncate(${1:text}, ${2:length})',
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Truncate text to specified length",
+      documentation: 'Truncate text to specified length',
     },
     {
-      label: "excerpt",
+      label: 'excerpt',
       kind: CompletionItemKind.Function,
-      detail: "Create excerpt from text",
-      insertText: "excerpt(${1:text}, ${2:length})",
+      detail: 'Create excerpt from text',
+      insertText: 'excerpt(${1:text}, ${2:length})',
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Create excerpt from text",
+      documentation: 'Create excerpt from text',
     },
   ];
 
   private debugHelpers: CompletionItem[] = [
     {
-      label: "inspect",
+      label: 'inspect',
       kind: CompletionItemKind.Function,
-      detail: "Inspect and debug values",
-      insertText: "inspect(${1:value})",
+      detail: 'Inspect and debug values',
+      insertText: 'inspect(${1:value})',
       insertTextFormat: InsertTextFormat.Snippet,
-      documentation: "Inspect and output a value for debugging purposes",
+      documentation: 'Inspect and output a value for debugging purposes',
     },
   ];
 
