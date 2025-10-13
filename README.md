@@ -2,6 +2,11 @@
 
 This is a language server for the [Edge](https://edge.adonisjs.com/) templating engine, used by the [AdonisJS](https://adonisjs.com/) framework.
 
+## Note
+This language server was built just for fun, the code quality is not guaranteed. I'm rebuilding it from scratch to achieve a high-quality implementation of all EdgeJS features, alongside with HTML tags autocompletion.
+
+
+
 ## Features
 
 * **Completions**: Provides completions for directives, helpers, and variables.
@@ -32,7 +37,7 @@ npm run dev
 
 ## Tree-sitter Parser
 
-This language server uses a tree-sitter parser for Edge templates. The parser is available as a separate npm package called `tree-sitter-edge`. 
+This language server uses a tree-sitter parser for Edge templates. The parser is available as a separate npm package called `tree-sitter-edge`.
 
 The language server will automatically use the published `tree-sitter-edge` npm package if it's available in your dependencies. If not, it will fall back to using a local WASM file.
 

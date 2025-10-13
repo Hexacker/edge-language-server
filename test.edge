@@ -7,25 +7,25 @@
   Content
   @else
   Content
-  @end
+@end
 
 @each(item in items)
   {{ item.name }}
-  @end
+@end
 
 @each((item, index) in items)
   {{ index }}: {{ item.name }}
-  @end
+@end
 
 @component('components/button')
   Content
-  @end
+@end
 
 @!component('components/button')
 
 @slot('name')
   Content
-  @end
+@end
 
 @include('partials/header')
 @includeIf(condition, 'partials/content')
@@ -97,10 +97,10 @@ Content
     @inputError('field')
       @can('permission')
         Content
-        @end
+      @end
       @cannot('permission')
         Content
-        @end
+      @end
       @embedImage('path/to/image')
       @embedImageData(data)
       
